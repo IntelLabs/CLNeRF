@@ -1,2 +1,2 @@
 # CLNeRF
-Official implementation of CLNeRF
+Official implementation of CLNeRF (Coming soon)
