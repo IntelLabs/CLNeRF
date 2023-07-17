@@ -23,11 +23,11 @@ some demo video/image here
 
 * Cuda extension: Upgrade `pip` to >= 22.1 and run `bash install_cuda_module.sh` (please run this each time you `pull` the code)
 
-## Dataset prepare
+## Dataset prepare (Naming follows Fig.4 of the main paper)
 
-* Synth-NeRF
+* Synth-NeRF (Synthetic NeRF dataset): navigate to the script folder for dataset prepare `cd scripts/data_prepare`, then run `bash prepare_SynthNeRF.sh`
 
-* NeRF ++
+* NeRF++ (A Tanks and Temples subset used in NeRF++): navigate to the script folder for dataset prepare `cd scripts/data_prepare`, install gdown for downloading google drive files `pip install gdown`, then run `bash prepare_NeRFPP.sh`
 
 * WOT
 

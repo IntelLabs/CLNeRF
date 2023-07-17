@@ -3,7 +3,7 @@
 export ROOT_DIR=dataset/WOT
 
 task_number=5
-scene_name=kitchen
+scene_name=living_room
 downsample=1.0
 
 rep=$1
