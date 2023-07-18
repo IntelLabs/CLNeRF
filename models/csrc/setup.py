@@ -14,8 +14,8 @@ sources = glob.glob('*.cpp')+glob.glob('*.cu')
 setup(
     name='vren',
     version='2.0',
-    author='kwea123',
-    author_email='kwea123@gmail.com',
+    author='ZhipengCai',
+    author_email='zhipeng.cai@intel.com',
     description='cuda volume rendering library',
     long_description='cuda volume rendering library',
     ext_modules=[

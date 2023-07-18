@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: vren
+Version: 2.0
+Summary: cuda volume rendering library
+Author: ZhipengCai
+Author-email: zhipeng.cai@intel.com
+
+cuda volume rendering library

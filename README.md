@@ -1,5 +1,5 @@
 # CLNeRF
-Official implementation of CLNeRF (Coming soon)
+Official implementation of 'CLNeRF: Continual Learning Meets NeRF'
 
 some demo video/image here
 
@@ -8,33 +8,26 @@ some demo video/image here
 ## Hardware
 
 * OS: Ubuntu 20.04
-* NVIDIA GPU with Compute Compatibility >= 75 and memory > 12GB (Tested with RTX3090 Ti and A6000), CUDA 11.3 (might work with older version)
+* NVIDIA GPU with Compute Compatibility >= 75 and memory > 12GB (Tested with RTX3090 Ti and RTX6000), CUDA 11.3 (might work with older version)
 
-## Software
-
+## Environment setup
 * Clone this repo: `https://github.com/ZhipengCai/CLNeRF.git`
-* Python>=3.8 (installation via [anaconda](https://www.anaconda.com/distribution/) is recommended, use `conda create -n CLNeRF python=3.8` to create a conda environment and activate it by `conda activate CLNeRF`)
-* libraries
-    * Install pytorch by `pip install torch==1.11.0 torchvision==0.12.0 --extra-index-url https://download.pytorch.org/whl/cu113`
-    * Install `torch-scatter` following their [instruction](https://github.com/rusty1s/pytorch_scatter#installation)
-    * Install `tinycudann` following their [instruction](https://github.com/NVlabs/tiny-cuda-nn#requirements) (compilation and pytorch extension)
-    * Install `apex` following their [instruction](https://github.com/NVIDIA/apex#linux)
-    * Install core requirements by `pip install -r requirements.txt`
+* simply run the code in `setup_env.sh` line by line (to avoid failure in specific line so that your own environment is damaged)
 
-* Cuda extension: Upgrade `pip` to >= 22.1 and run `bash install_cuda_module.sh` (please run this each time you `pull` the code)
+## Dataset prepare (Naming follows Fig.4 of the main paper, currently support WOT, SynthNeRF and NeRF++)
 
-## Dataset prepare (Naming follows Fig.4 of the main paper)
+```bash
+bash prepare_datasets.sh
+```
 
-* Synth-NeRF (Synthetic NeRF dataset): navigate to the script folder for dataset prepare `cd scripts/data_prepare`, then run `bash prepare_SynthNeRF.sh`
+# Run experiments
 
-* NeRF++ (A Tanks and Temples subset used in NeRF++): navigate to the script folder for dataset prepare `cd scripts/data_prepare`, install gdown for downloading google drive files `pip install gdown`, then run `bash prepare_NeRFPP.sh`
+```bash
+# run experiments on CLNeRF (WOT, SynthNeRF and NeRF++ datasets are currently supported)
+bash run_CLNeRF.sh
+# run experiments on MEIL-NeRF (WOT, SynthNeRF and NeRF++ datasets are currently supported)
+bash run_MEIL.sh
+```
 
-* WOT
-
-# Code running
-
-	Synth-NeRF
-	NeRF++
-	WOT (introduce the dataset here)
-
-
+# Contact
+Please contact Zhipeng Cai (homepage: https://zhipengcai.github.io/, email: czptc2h@gmail.com) if you have questions, comments or want to collaborate on this repository to make 
