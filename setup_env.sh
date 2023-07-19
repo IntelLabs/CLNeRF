@@ -29,7 +29,7 @@ bash install_cuda_module.sh
 pip install nerfacc==0.3.5 -f https://nerfacc-bucket.s3.us-west-2.amazonaws.com/whl/torch-1.11.0_cu113.html
 
 # install some necessary libraries
-pip install imageio
+pip install imageio==2.19.3
 pip install opencv-python
 pip install einops
 pip install tqdm
@@ -40,5 +40,5 @@ pip install torchmetrics[image]
 pip install -U 'tensorboardX'
 
 # the followings are for creating WOT dataset for your custom scenes, can ignore if you dont want them
-pip install scikit-image
+pip install scikit-image==0.19.3
 conda install -c conda-forge colmap
