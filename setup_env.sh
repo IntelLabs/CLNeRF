@@ -25,6 +25,9 @@ rm -rf apex
 # cuda extension (modified NGP architecture with appearance and geometric embeddings, please run this line each time you pull the code)
 bash install_cuda_module.sh
 
+# nerfacc (for vanilla NeRF baselines)
+pip install nerfacc==0.3.5 -f https://nerfacc-bucket.s3.us-west-2.amazonaws.com/whl/torch-1.11.0_cu113.html
+
 # install some necessary libraries
 pip install imageio
 pip install opencv-python
