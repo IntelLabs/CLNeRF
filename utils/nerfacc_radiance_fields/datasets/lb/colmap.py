@@ -16,6 +16,8 @@ from ..utils import Rays
 from ..colmap_utils import \
     read_cameras_binary, read_images_binary, read_points3d_binary
 
+import math, random
+
 _PATH = os.path.abspath(__file__)
 
 sys.path.insert(
@@ -210,6 +212,8 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
             root_fp, subject_id, split, factor)
 
         num_img = self.camtoworlds.shape[0]
+        img_per_task = math.ceil(num_img / self.task_number)
+        print("img_per_task = {}".format(img_per_task))
         if split == 'train':
             # split the training data into 5 tasks
             # prepare training data
