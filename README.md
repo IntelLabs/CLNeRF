@@ -7,7 +7,7 @@ We study the problem of continual learning in the context of NeRFs. We propose a
 
 To facilitate future research on continual NeRF, we provide the code to run different continual learning methods on different NeRF datasets (including WOT).
 
-some demo video/image here
+<!-- some demo video/image here -->
 
 
 # Installation
