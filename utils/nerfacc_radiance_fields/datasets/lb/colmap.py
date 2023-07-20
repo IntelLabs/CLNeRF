@@ -268,6 +268,7 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
         far: float = None,
         batch_over_images: bool = True,
         factor: int = 1,
+        id_rep = None
     ):
         super().__init__()
         assert split in self.SPLITS, "%s" % split
@@ -309,7 +310,22 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
                 self.id_train_final = self.id_task_curr
             else:
                 # set random seed
-                self.id_train_final = self.id_task_curr + random.choices(self.id_rep, k = self.rep_size)
+                # self.id_train_final = self.id_task_curr + random.choices(self.id_rep, k = self.rep_size)
+                if id_rep is not None:
+                    self.id_rep = id_rep
+                    print("self.id_rep = {}".format(self.id_rep))
+                # self.id_train_final = self.id_task_curr + random.choices(self.id_rep, k = self.rep_size)
+                self.id_train_final = self.id_task_curr + self.id_rep
+            if len(self.id_train_final) <= self.rep_size:
+                self.rep_buf = self.id_train_final
+            else:
+                self.rep_buf = self.id_rep.copy()
+                offset = self.task_curr * img_per_task
+                for i, id_curr in enumerate(self.id_task_curr):
+                    rand_int = random.randint(0, offset+i)
+                    if rand_int < len(self.rep_buf):
+                        self.rep_buf[rand_int] = id_curr
+            print("rep_buf = {}".format(self.rep_buf))
             # print("[test] use {} ({}) from {} images (task_number = {}, rep_size = {})".format(len(self.id_train_final), self.id_train_final, num_img, self.task_number, self.rep_size))
         else:
             self.id_train_final = list(range(num_img))
