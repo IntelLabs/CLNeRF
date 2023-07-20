@@ -19,25 +19,27 @@ class DistortionLoss(torch.autograd.Function):
     Outputs:
         loss: (N_rays)
     """
+
     @staticmethod
     def forward(ctx, ws, deltas, ts, rays_a):
         loss, ws_inclusive_scan, wts_inclusive_scan = \
             vren.distortion_loss_fw(ws, deltas, ts, rays_a)
-        ctx.save_for_backward(ws_inclusive_scan, wts_inclusive_scan,
-                              ws, deltas, ts, rays_a)
+        ctx.save_for_backward(ws_inclusive_scan, wts_inclusive_scan, ws,
+                              deltas, ts, rays_a)
         return loss
 
     @staticmethod
     def backward(ctx, dL_dloss):
-        (ws_inclusive_scan, wts_inclusive_scan,
-        ws, deltas, ts, rays_a) = ctx.saved_tensors
+        (ws_inclusive_scan, wts_inclusive_scan, ws, deltas, ts,
+         rays_a) = ctx.saved_tensors
         dL_dws = vren.distortion_loss_bw(dL_dloss, ws_inclusive_scan,
-                                         wts_inclusive_scan,
-                                         ws, deltas, ts, rays_a)
+                                         wts_inclusive_scan, ws, deltas, ts,
+                                         rays_a)
         return dL_dws, None, None, None
 
 
 class NeRFLoss(nn.Module):
+
     def __init__(self, lambda_opacity=1e-3, lambda_distortion=1e-3):
         super().__init__()
 
@@ -46,11 +48,11 @@ class NeRFLoss(nn.Module):
 
     def forward(self, results, target, **kwargs):
         d = {}
-        d['rgb'] = (results['rgb']-target['rgb'])**2
+        d['rgb'] = (results['rgb'] - target['rgb'])**2
 
-        o = results['opacity']+1e-10
+        o = results['opacity'] + 1e-10
         # encourage opacity to be either 0 or 1 to avoid floater
-        d['opacity'] = self.lambda_opacity*(-o*torch.log(o))
+        d['opacity'] = self.lambda_opacity * (-o * torch.log(o))
 
         if self.lambda_distortion > 0:
             d['distortion'] = self.lambda_distortion * \
@@ -60,8 +62,8 @@ class NeRFLoss(nn.Module):
         return d
 
 
-
 class MEILNeRFLoss(nn.Module):
+
     def __init__(self, lambda_opacity=1e-3, lambda_distortion=1e-3):
         super().__init__()
 
@@ -73,18 +75,18 @@ class MEILNeRFLoss(nn.Module):
         is_rep = target['is_rep']
         id_new = torch.where(is_rep == 0)[0]
         id_old = torch.where(is_rep == 1)[0]
-        # print("[test] is_rep = {}/{}".format(is_rep.shape, is_rep.sum()))
-        loss = ((results['rgb'][id_new]-target['rgb'][id_new])**2).sum()/float(id_new.shape[0])
-        # print("[test] id_new = {}, loss = {}".format(id_new, loss))
+        loss = ((results['rgb'][id_new] - target['rgb'][id_new])**
+                2).sum() / float(id_new.shape[0])
         if id_old.shape[0] > 0:
-            loss += torch.sum(torch.sqrt((results['rgb'][id_old] - target['rgb'][id_old]).pow(2)+ (1e-3)**2))*lambda_p/float(id_old.shape[0])
-            # print("[test] id_old = {}, loss = {}".format(id_old, loss))
-        # d['rgb'] = (results['rgb']-target['rgb'])**2
+            loss += torch.sum(
+                torch.sqrt(
+                    (results['rgb'][id_old] - target['rgb'][id_old]).pow(2) +
+                    (1e-3)**2)) * lambda_p / float(id_old.shape[0])
         d['rgb'] = loss
 
-        o = results['opacity']+1e-10
+        o = results['opacity'] + 1e-10
         # encourage opacity to be either 0 or 1 to avoid floater
-        d['opacity'] = self.lambda_opacity*(-o*torch.log(o))
+        d['opacity'] = self.lambda_opacity * (-o * torch.log(o))
 
         if self.lambda_distortion > 0:
             d['distortion'] = self.lambda_distortion * \
