@@ -18,7 +18,7 @@ To facilitate future research on continual NeRF, we provide the code to run diff
 * NVIDIA GPU with Compute Compatibility >= 75 and memory > 12GB (Tested with RTX3090 Ti and RTX6000), CUDA 11.3 (might work with older version)
 
 ## Environment setup
-* Clone this repo: `https://github.com/ZhipengCai/CLNeRF.git`
+* Clone this repo and submodules (pycolmap): `git clone --recurse-submodules https://github.com/ZhipengCai/CLNeRF.git`
 * simply run the code in `setup_env.sh` line by line (to avoid failure in specific line so that your own environment is damaged)
 
 ## Dataset prepare (Naming follows Fig.4 of the main paper, currently support WOT, SynthNeRF and NeRF++)
