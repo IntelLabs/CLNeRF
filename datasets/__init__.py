@@ -1,3 +1,4 @@
+from .nsvf import NSVFDataset
 from .lb.nsvf import NSVFDataset_lb
 from .CLNerf.nsvf import NSVFDataset_CLNerf
 from .MEILNerf.nsvf_MEILNeRF import NSVFDataset_MEILNeRF
