@@ -1,0 +1,3 @@
+[submodule "utils/pycolmap"]
+    path = utils/pycolmap
+    url = https://github.com/rmbrualla/pycolmap.git
