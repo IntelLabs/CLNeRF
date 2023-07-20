@@ -1,0 +1,15 @@
+dataset
+dataset/
+
+results
+results/
+
+logs
+logs/
+
+ckpts
+ckpts/
+
+scripts/data_prepare/job_prepare_WOT.sh
+
+job_run_CLNeRF.sh
