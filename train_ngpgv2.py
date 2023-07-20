@@ -37,7 +37,8 @@ from pytorch_lightning.callbacks import TQDMProgressBar, ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.utilities.distributed import all_gather_ddp_if_available
 
-from utils import slim_ckpt, load_ckpt
+
+from utils.utils import slim_ckpt, load_ckpt
 
 import warnings; warnings.filterwarnings("ignore")
 # os.environ['CUDA_LAUNCH_BLOCKING'] = '1'

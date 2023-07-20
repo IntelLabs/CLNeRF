@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export ROOT_DIR=/export/work/zcai/WorkSpace/NeRF/nerf_zoo/data_continual_nerf/tanks_and_temples
+export ROOT_DIR=dataset/tanks_and_temples
 
 python train.py \
     --root_dir $ROOT_DIR/tat_intermediate_M60 --dataset_name nerfpp \

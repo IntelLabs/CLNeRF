@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export ROOT_DIR=/export/share/datasets/Carla_Dynamic/NeRF/nerf_synthetic_NSVF/Synthetic_NeRF
+export ROOT_DIR=dataset/Synthetic_NeRF
 
 python train.py \
     --root_dir $ROOT_DIR/Chair \

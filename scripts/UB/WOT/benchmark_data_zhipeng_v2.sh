@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export ROOT_DIR=/mnt/beegfs/mixed-tier/work/zcai/WorkSpace/NeRF/nerf_zoo/data_continual_nerf/geometry_change
+export ROOT_DIR=dataset/WOT
 
 # scene_name=breville
 # python train_ngpgv2.py \
