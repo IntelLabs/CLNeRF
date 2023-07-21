@@ -8,7 +8,7 @@ scene_name=breville
 
 
 downsample=1.0
-rep=$1
+rep=10
 python train_ngpgv2_lb.py \
     --root_dir $ROOT_DIR/${scene_name} --dataset_name colmap_ngpa_lb \
     --exp_name ${scene_name}_${rep}_autoScale8.0_8.0  \

@@ -9,7 +9,7 @@ bash scripts/NT/WOT/nerf_baseline.sh living_room ${rep} 5 dataset/WOT
 bash scripts/NT/WOT/nerf_baseline.sh spa ${rep} 5 dataset/WOT
 bash scripts/NT/WOT/nerf_baseline.sh street ${rep} 5 dataset/WOT
 
-# # # LB on Synth-NeRF dataset
+# # # Synth-NeRF dataset
 bash scripts/NT/SynthNeRF/nerf_baseline.sh chair ${rep} 10 dataset/nerf_synthetic
 bash scripts/NT/SynthNeRF/nerf_baseline.sh drums ${rep} 10 dataset/nerf_synthetic
 bash scripts/NT/SynthNeRF/nerf_baseline.sh ficus ${rep} 10 dataset/nerf_synthetic
@@ -19,7 +19,7 @@ bash scripts/NT/SynthNeRF/nerf_baseline.sh materials ${rep} 10 dataset/nerf_synt
 bash scripts/NT/SynthNeRF/nerf_baseline.sh mic ${rep} 10 dataset/nerf_synthetic
 bash scripts/NT/SynthNeRF/nerf_baseline.sh ship ${rep} 10 dataset/nerf_synthetic
 
-# # # CLNeRF on NeRF++ dataset
+# # #  NeRF++ dataset
 bash scripts/NT/nerfpp/nerf_baseline.sh tat_intermediate_M60 ${rep} 10 dataset/tanks_and_temples
 bash scripts/NT/nerfpp/nerf_baseline.sh tat_intermediate_Playground ${rep} 10 dataset/tanks_and_temples
 bash scripts/NT/nerfpp/nerf_baseline.sh tat_intermediate_Train ${rep} 10 dataset/tanks_and_temples

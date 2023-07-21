@@ -3,7 +3,7 @@
 export ROOT_DIR=dataset/WOT
 
 task_number=6
-scene_name=grill
+scene_name=mac
 downsample=1.0
 
 rep=$1
