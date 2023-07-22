@@ -4,7 +4,7 @@ export ROOT_DIR=dataset/WOT
 
 task_number=5
 scene_name=grill
-downsample=1.0
+downsample=0.5
 
 rep=$1
 for ((i=0; i<$task_number; i++))
