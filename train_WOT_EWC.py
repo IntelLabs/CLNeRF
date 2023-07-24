@@ -411,7 +411,7 @@ with torch.no_grad():
         render_bkgd = data["color_bkgd"]
         rays = data["rays"]
         pixels = data["pixels"]
-        task_id = data['task_id']
+        task_id = data['task_id'].flatten()
 
         # rendering
         rgb, acc, depth, _ = render_image(

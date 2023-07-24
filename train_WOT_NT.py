@@ -27,6 +27,8 @@ from einops import rearrange
 
 from nerfacc import ContractionType, OccupancyGrid
 
+# os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+
 if __name__ == "__main__":
 
     device = "cuda:0"
@@ -132,7 +134,10 @@ if __name__ == "__main__":
         p.requires_grad = False
 
     # setup the radiance field we want to train.
-    max_steps = args.max_steps
+    # max_steps = args.max_steps
+    # test
+    max_steps = 100
+
     grad_scaler = torch.cuda.amp.GradScaler(1)
     # radiance_field = VanillaNeRFRadianceField(net_width = args.dim).to(device)
     radiance_field = VanillaNeRFRadianceFieldG(net_width = args.dim, vocab_size = args.vocab_size, dim_a = args.dim_a, dim_g = args.dim_g).to(device)
@@ -345,7 +350,9 @@ with torch.no_grad():
         render_bkgd = data["color_bkgd"]
         rays = data["rays"]
         pixels = data["pixels"]
-        task_id = data['task_id']
+        task_id = data['task_id'].flatten()
+
+        # print("data = {}, render_bkgd = {}, rays = {}, pixels = {}, task_id = {}".format(data, render_bkgd, rays, pixels, task_id))
 
         # rendering
         rgb, acc, depth, _ = render_image(

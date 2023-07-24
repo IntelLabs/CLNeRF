@@ -3,8 +3,8 @@
 export ROOT_DIR=dataset/WOT
 
 task_number=5
-scene_name=car
-downsample=0.5
+scene_name=car_resized
+downsample=1.0
 
 rep=$1
 for ((i=0; i<$task_number; i++))

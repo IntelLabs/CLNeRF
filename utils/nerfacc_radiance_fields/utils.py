@@ -62,6 +62,7 @@ def render_image(
 				else timestamps.expand_as(positions[:, :1])
 			)
 			return radiance_field.query_density(positions, task_id[ray_indices], t)
+		# print("positions = {}/{}, task_id = {}/{}, ray_indices = {}/{}".format(positions, positions.shape, task_id, task_id.shape, ray_indices, ray_indices.shape))
 		return radiance_field.query_density(positions, task_id[ray_indices])
 
 	def rgb_sigma_fn(t_starts, t_ends, ray_indices):
