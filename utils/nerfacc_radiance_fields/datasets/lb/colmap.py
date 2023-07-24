@@ -232,6 +232,7 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
                     self.id_rep = id_rep
                     print("self.id_rep = {}".format(self.id_rep))
                 self.id_train_final = self.id_task_curr + self.id_rep
+            print("id_train_final = {}, rep_size = {}".format(self.id_train_final, self.rep_size))
             if len(self.id_train_final) <= self.rep_size:
                 self.rep_buf = self.id_train_final
             else:
@@ -239,7 +240,10 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
                 offset = self.task_curr * img_per_task
                 for i, id_curr in enumerate(self.id_task_curr):
                     rand_int = random.randint(0, offset + i)
-                    if rand_int < len(self.rep_buf):
+                    # print("[test reservoir] i = {}, offset = {}, randint = {}".format(i, offset, rand_int))
+                    if len(self.rep_buf) < self.rep_size:
+                        self.rep_buf.append(id_curr)
+                    elif rand_int < len(self.rep_buf):
                         self.rep_buf[rand_int] = id_curr
             print("rep_buf = {}".format(self.rep_buf))
         else:

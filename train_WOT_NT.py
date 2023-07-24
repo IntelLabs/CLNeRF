@@ -134,9 +134,7 @@ if __name__ == "__main__":
         p.requires_grad = False
 
     # setup the radiance field we want to train.
-    # max_steps = args.max_steps
-    # test
-    max_steps = 100
+    max_steps = args.max_steps
 
     grad_scaler = torch.cuda.amp.GradScaler(1)
     # radiance_field = VanillaNeRFRadianceField(net_width = args.dim).to(device)
