@@ -17,7 +17,7 @@ def get_opts():
                             'nsvf_TaTSeq_CLNerf', 'nsvf_TaTSeq_MEILNERF',
                             'colmap', 'colmap_ngpa', 'colmap_ngpa_CLNerf',
                             'colmap_ngpa_MEIL', 'colmap_ngpa_lb', 'nerfpp',
-                            'nerfpp_lb', 'nerfpp_CLNerf', 'nerfpp_MEIL'
+                            'nerfpp_lb', 'nerfpp_CLNerf', 'nerfpp_MEIL', 'colmap_ngpa_CLNerf_render'
                         ],
                         help='which dataset to train/test')
     parser.add_argument('--split',
@@ -204,5 +204,9 @@ def get_opts():
                         type=float,
                         default=0.033,
                         help='minimum learning rate')
+    parser.add_argument('--render_fname',
+                        type=str,
+                        default='CLNeRF',
+                        help='the extra name used when render video demos')
 
     return parser.parse_args()
