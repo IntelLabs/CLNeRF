@@ -205,7 +205,7 @@ class NeRFSystem(LightningModule):
 
     def on_validation_start(self):
         torch.cuda.empty_cache()
-        # print("start validation")
+        print("start validation")
         if not self.hparams.no_save_test:
             self.val_dir = f'results/NGPGv2/CLNerf/{self.hparams.dataset_name}/{self.hparams.exp_name}'
             os.makedirs(self.val_dir, exist_ok=True)
@@ -284,8 +284,8 @@ class NeRFSystem(LightningModule):
 
 if __name__ == '__main__':
     hparams = get_opts()
-    if hparams.val_only and (not hparams.ckpt_path):
-        raise ValueError('You need to provide a @ckpt_path for validation!')
+    # if hparams.val_only and (not hparams.ckpt_path):
+    #     raise ValueError('You need to provide a @ckpt_path for validation!')
     system = NeRFSystem(hparams)
 
     ckpt_cb = ModelCheckpoint(dirpath=f'ckpts/NGPGv2_CL/{hparams.dataset_name}/{hparams.exp_name}',
@@ -326,6 +326,7 @@ if __name__ == '__main__':
                         precision=16)
 
     trainer.fit(system, ckpt_path=hparams.ckpt_path)
+    # trainer.fit(system, ckpt_path=hparams.ckpt_path)
 
     if not hparams.val_only: # save slimmed ckpt for the last epoch
         ckpt_ = \
