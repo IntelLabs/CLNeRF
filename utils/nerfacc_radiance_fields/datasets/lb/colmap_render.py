@@ -16,6 +16,8 @@ from ..utils import Rays
 from ..colmap_utils import \
     read_cameras_binary, read_images_binary, read_points3d_binary
 
+from ..ray_utils import interpolate_poses
+
 import math, random
 
 _PATH = os.path.abspath(__file__)
@@ -172,7 +174,7 @@ def _load_colmap(root_fp: str, subject_id: str, split: str, factor: int = 1):
 class SubjectLoader_lb(torch.utils.data.Dataset):
     """Single subject data loader for training and evaluation."""
 
-    SPLITS = ["train", "test", "render"]
+    SPLITS = ["render"]
 
     OPENGL_CAMERA = False
 
@@ -196,8 +198,10 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
         assert color_bkgd_aug in ["white", "black", "random"]
         if split == 'render':
             self.split = 'test'
+            self.is_render = True
         else:
             self.split = split
+            self.is_render = False
         self.num_rays = num_rays
         self.near = near
         self.far = far
@@ -263,6 +267,29 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
         self.task_ids = (torch.from_numpy(self.task_ids).to(
             torch.uint8))[self.id_train_final]
 
+        if split == 'render':
+            self.frames_per2images = 100
+            print("[test video render]: self.images = {}/{}, self.camtoworlds = {}/{}, self.task_ids = {}/{}".format(self.images, self.images.shape, self.camtoworlds, self.camtoworlds.shape, self.task_ids, self.task_ids.shape))
+            # initialize the interpolated results
+            self.camtoworlds_interpolate = self.camtoworlds[0].reshape((1, 4, 4))
+            self.task_ids_interpolate = torch.tensor([self.task_ids[0]])
+            # now we start the interpolation
+            for i in range(1, len(self.camtoworlds)):
+                if self.task_ids[i] == self.task_ids_interpolate[-1]:
+                    interpolated_poses = interpolate_poses(self.camtoworlds_interpolate[-1].reshape((4,4)), self.camtoworlds[i].reshape(4,4), self.frames_per2images)
+                    for pose_curr in interpolated_poses:
+                        self.camtoworlds_interpolate = torch.cat((self.camtoworlds_interpolate, pose_curr.reshape(1,4,4)), dim = 0)
+                        # print("self.ts_interpolate = {}, self.ts = {}".format(self.ts_interpolate, self.ts[i]))
+                        self.task_ids_interpolate = torch.cat((self.task_ids_interpolate, torch.tensor([self.task_ids[i]])))
+
+                self.camtoworlds_interpolate = torch.cat((self.camtoworlds_interpolate, self.camtoworlds[0].reshape((1, 4, 4))), dim=0)
+                self.task_ids_interpolate = torch.cat((self.task_ids_interpolate, torch.tensor([self.task_ids[i]])))
+
+                self.camtoworlds = self.camtoworlds_interpolate
+                self.task_ids = self.task_ids_interpolate
+            # print("[test video render]: self.camtoworlds_interpolate = {}/{}, self.task_ids_interpolate = {}/{}".format(self.camtoworlds_interpolate, self.camtoworlds_interpolate.shape, self.task_ids_interpolate, self.task_ids_interpolate.shape))
+            # exit()
+
     def split_tasks(self, num_img, task_number, task_split_method):
         # return task id for each element in poses
         task_id = []
@@ -280,7 +307,7 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
         return task_id
 
     def __len__(self):
-        return len(self.images)
+        return len(self.camtoworlds)
 
     @torch.no_grad()
     def __getitem__(self, index):
@@ -290,21 +317,12 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
 
     def preprocess(self, data):
         """Process the fetched / cached data with randomness."""
-        pixels, rays = data["rgb"], data["rays"]
+        rays = data["rays"]
 
-        if self.training:
-            if self.color_bkgd_aug == "random":
-                color_bkgd = torch.rand(3, device=self.images.device)
-            elif self.color_bkgd_aug == "white":
-                color_bkgd = torch.ones(3, device=self.images.device)
-            elif self.color_bkgd_aug == "black":
-                color_bkgd = torch.zeros(3, device=self.images.device)
-        else:
-            # just use white during inference
-            color_bkgd = torch.ones(3, device=self.images.device)
+        # just use white during inference
+        color_bkgd = torch.ones(3, device=self.images.device)
 
         return {
-            "pixels": pixels,  # [n_rays, 3] or [h, w, 3]
             "rays": rays,  # [n_rays,] or [h, w]
             "color_bkgd": color_bkgd,  # [3,]
             **{k: v
@@ -318,36 +336,16 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
         """Fetch the data (it maybe cached for multiple batches)."""
         num_rays = self.num_rays
 
-        if self.training:
-            if self.batch_over_images:
-                image_id = torch.randint(
-                    0,
-                    len(self.images),
-                    size=(num_rays, ),
-                    device=self.images.device,
-                )
-            else:
-                image_id = [index]
-            x = torch.randint(0,
-                              self.width,
-                              size=(num_rays, ),
-                              device=self.images.device)
-            y = torch.randint(0,
-                              self.height,
-                              size=(num_rays, ),
-                              device=self.images.device)
-        else:
-            image_id = [index]
-            x, y = torch.meshgrid(
-                torch.arange(self.width, device=self.images.device),
-                torch.arange(self.height, device=self.images.device),
-                indexing="xy",
-            )
-            x = x.flatten()
-            y = y.flatten()
+        image_id = [index]
+        x, y = torch.meshgrid(
+            torch.arange(self.width, device=self.images.device),
+            torch.arange(self.height, device=self.images.device),
+            indexing="xy",
+        )
+        x = x.flatten()
+        y = y.flatten()
 
         # generate rays
-        rgb = self.images[image_id, y, x] / 255.0  # (num_rays, 3)
         task_id = self.task_ids[image_id]
         c2w = self.camtoworlds[image_id]  # (num_rays, 3, 4)
         camera_dirs = F.pad(
@@ -369,21 +367,14 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
         viewdirs = directions / torch.linalg.norm(
             directions, dim=-1, keepdims=True)
 
-        if self.training:
-            origins = torch.reshape(origins, (num_rays, 3))
-            viewdirs = torch.reshape(viewdirs, (num_rays, 3))
-            rgb = torch.reshape(rgb, (num_rays, 3))
-        else:
-            origins = torch.reshape(origins, (self.height, self.width, 3))
-            viewdirs = torch.reshape(viewdirs, (self.height, self.width, 3))
-            rgb = torch.reshape(rgb, (self.height, self.width, 3))
-            task_id = task_id * torch.ones(
-                (self.height, self.width, 1), device=task_id.device)
+        origins = torch.reshape(origins, (self.height, self.width, 3))
+        viewdirs = torch.reshape(viewdirs, (self.height, self.width, 3))
+        task_id = task_id * torch.ones(
+            (self.height, self.width, 1), device=task_id.device)
 
         rays = Rays(origins=origins, viewdirs=viewdirs)
 
         return {
-            "rgb": rgb,  # [h, w, 3] or [num_rays, 3]
             "rays": rays,  # [h, w, 3] or [num_rays, 3]
             'task_id': task_id.int()
         }

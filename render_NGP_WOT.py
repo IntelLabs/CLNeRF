@@ -121,9 +121,9 @@ class NeRFSystem(LightningModule):
 
         self.test_dataset = dataset(split='test', **kwargs)
         # self.rep_dataset = dataset(split='rep', **kwargs)
-        os.makedirs(f'results/video_demo/{self.hparams.dataset_name}/{self.hparams.exp_name}_{self.hparams.render_fname}', exist_ok=True)
-        self.rgb_video_writer = imageio.get_writer(f'results/video_demo/{self.hparams.dataset_name}/{self.hparams.exp_name}_{self.hparams.render_fname}/rgb.mp4', fps=60)
-        self.depth_video_writer = imageio.get_writer(f'results/video_demo/{self.hparams.dataset_name}/{self.hparams.exp_name}_{self.hparams.render_fname}/depth.mp4', fps=60)
+        os.makedirs(f'results/video_demo/{self.hparams.render_fname}/{self.hparams.dataset_name}/{self.hparams.exp_name}_{self.hparams.render_fname}', exist_ok=True)
+        self.rgb_video_writer = imageio.get_writer(f'results/video_demo/{self.hparams.render_fname}/{self.hparams.dataset_name}/{self.hparams.exp_name}_{self.hparams.render_fname}/rgb.mp4', fps=60)
+        self.depth_video_writer = imageio.get_writer(f'results/video_demo/{self.hparams.render_fname}/{self.hparams.dataset_name}/{self.hparams.exp_name}_{self.hparams.render_fname}/depth.mp4', fps=60)
 
     def configure_optimizers(self):
         # define additional parameters

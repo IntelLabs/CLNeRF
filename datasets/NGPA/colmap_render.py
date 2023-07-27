@@ -626,29 +626,29 @@ class ColmapDataset_NGPA_CLNerf_render(BaseDataset):
                 "[test ts]: self.ts = {}, self.task_ids = {}, len(ts) = {}, len(self.poses) = {}"
                 .format(self.ts, self.task_ids, self.ts.shape,
                         len(self.poses)))
-        # perform interpolation on the poses
-        # print("self.poses = {}/{}".format(self.poses, self.poses.shape))
-        # self.poses_interpolate = 
-        self.poses_interpolate = self.poses[0].reshape((1, 3, 4))
-        self.ts_interpolate = torch.tensor([self.ts[0]])
-        self.task_ids_interpolate = [self.task_ids[0]]
-        for i in range(1, len(self.poses)):
-            if self.task_ids[i] == self.task_ids_interpolate[-1]:
-                # produce N interpolated poses between the two poses
-                interpolated_poses = interpolate_poses(self.poses_interpolate[-1].reshape((3,4)), self.poses[i].reshape(3,4), self.frames_per2images)
-                for pose_curr in interpolated_poses:
-                    self.poses_interpolate = torch.cat((self.poses_interpolate, pose_curr.reshape(1,3,4)), dim = 0)
-                    # print("self.ts_interpolate = {}, self.ts = {}".format(self.ts_interpolate, self.ts[i]))
-                    self.ts_interpolate = torch.cat((self.ts_interpolate, torch.tensor([self.ts[i]])))
-                    self.task_ids_interpolate.append(self.task_ids[i])
-                # print("interpolated_poses = {}, pose_current = {}".format(interpolated_poses, self.poses[i]))
-                # exit()
-            self.poses_interpolate = torch.cat((self.poses_interpolate, self.poses[i].reshape((1,3,4))), dim=0)
-            self.ts_interpolate = torch.cat((self.ts_interpolate, torch.tensor([self.ts[i]])))
-            self.task_ids_interpolate.append(self.task_ids[i])
-        print("self.poses_interpolate = {}, self.ts_interpolate = {}, self.task_ids_interpolate = {}".format(self.poses_interpolate.shape, self.ts_interpolate.shape, len(self.task_ids_interpolate) ))
-        # print("self.poses_interpolate = {}".format(self.poses_interpolate))
-        
+            # perform interpolation on the poses
+            # print("self.poses = {}/{}".format(self.poses, self.poses.shape))
+            # self.poses_interpolate = 
+            self.poses_interpolate = self.poses[0].reshape((1, 3, 4))
+            self.ts_interpolate = torch.tensor([self.ts[0]])
+            self.task_ids_interpolate = [self.task_ids[0]]
+            for i in range(1, len(self.poses)):
+                if self.task_ids[i] == self.task_ids_interpolate[-1]:
+                    # produce N interpolated poses between the two poses
+                    interpolated_poses = interpolate_poses(self.poses_interpolate[-1].reshape((3,4)), self.poses[i].reshape(3,4), self.frames_per2images)
+                    for pose_curr in interpolated_poses:
+                        self.poses_interpolate = torch.cat((self.poses_interpolate, pose_curr.reshape(1,3,4)), dim = 0)
+                        # print("self.ts_interpolate = {}, self.ts = {}".format(self.ts_interpolate, self.ts[i]))
+                        self.ts_interpolate = torch.cat((self.ts_interpolate, torch.tensor([self.ts[i]])))
+                        self.task_ids_interpolate.append(self.task_ids[i])
+                    # print("interpolated_poses = {}, pose_current = {}".format(interpolated_poses, self.poses[i]))
+                    # exit()
+                self.poses_interpolate = torch.cat((self.poses_interpolate, self.poses[i].reshape((1,3,4))), dim=0)
+                self.ts_interpolate = torch.cat((self.ts_interpolate, torch.tensor([self.ts[i]])))
+                self.task_ids_interpolate.append(self.task_ids[i])
+            print("self.poses_interpolate = {}, self.ts_interpolate = {}, self.task_ids_interpolate = {}".format(self.poses_interpolate.shape, self.ts_interpolate.shape, len(self.task_ids_interpolate) ))
+            # print("self.poses_interpolate = {}".format(self.poses_interpolate))
+            
         # exit()
         
     def __len__(self):

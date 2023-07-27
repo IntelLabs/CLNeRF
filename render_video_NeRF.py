@@ -134,7 +134,8 @@ if __name__ == "__main__":
         p.requires_grad = False
 
     # setup the radiance field we want to train.
-    max_steps = args.max_steps
+    # max_steps = args.max_steps
+    max_steps = 100 # test
 
     grad_scaler = torch.cuda.amp.GradScaler(1)
     # radiance_field = VanillaNeRFRadianceField(net_width = args.dim).to(device)
@@ -163,6 +164,7 @@ if __name__ == "__main__":
         test_dataset_kwargs = {}
 
         from utils.nerfacc_radiance_fields.datasets.lb.colmap import SubjectLoader_lb as SubjectLoader
+        from utils.nerfacc_radiance_fields.datasets.lb.colmap_render import SubjectLoader_lb as SubjectLoader_render
 
         data_root_fp = args.data_root
         target_sample_batch_size = 1 << 16
@@ -188,10 +190,10 @@ if __name__ == "__main__":
 
         id_rep = train_dataset.rep_buf.copy()
 
-        test_dataset = SubjectLoader(
+        test_dataset = SubjectLoader_render(
             subject_id=args.scene,
             root_fp=data_root_fp,
-            split="test",
+            split="render",
             num_rays=None,
             **test_dataset_kwargs,
         )
@@ -334,29 +336,29 @@ if __name__ == "__main__":
 
 
 
-
 # print("step == max_steps = {}/{}/{},   step > 0 = {}, args.task_curr == (args.task_number - 1) = {}".format(step == max_steps, step, max_steps, step > 0, args.task_curr == (args.task_number - 1)))
 # if step == max_steps and step > 0 and args.task_curr == (args.task_number - 1):
 # evaluation
-result_dir = f'results/WOT/NT_ER/{args.scene}_{args.rep_size}'
+result_dir = f'results/WOT/NT_ER/{args.scene}_{args.rep_size}/video'
 os.makedirs(result_dir, exist_ok=True)
 radiance_field.eval()
+rgb_video_writer = imageio.get_writer(result_dir+'/rgb.mp4', fps=60)
+depth_video_writer = imageio.get_writer(result_dir+'/depth.mp4', fps=60)
 
 # save the trained model
 out_dict = {'model': radiance_field, 'occupancy_grid': occupancy_grid}
 torch.save(out_dict, result_dir+'/model.torchSave')
 
-psnrs, ssims, lpips = [], [], []
-# psnrs_ngp = []
+out_dict_read = torch.load(result_dir+'/model.torchSave')
+radiance_field = out_dict_read['model'].to(device).eval()
+occupancy_grid = out_dict_read['occupancy_grid'].to(device)
+
 with torch.no_grad():
     for i in tqdm.tqdm(range(len(test_dataset))):
         data = test_dataset[i]
         render_bkgd = data["color_bkgd"]
         rays = data["rays"]
-        pixels = data["pixels"]
         task_id = data['task_id'].flatten()
-
-        # print("data = {}, render_bkgd = {}, rays = {}, pixels = {}, task_id = {}".format(data, render_bkgd, rays, pixels, task_id))
 
         # rendering
         rgb, acc, depth, _ = render_image(
@@ -378,23 +380,9 @@ with torch.no_grad():
         # psnr = -10.0 * torch.log(mse) / np.log(10.0)
         # psnrs.append(psnr.item())
         # compute ngp psnr
-        psnrs.append(psnr_func(rgb.cpu(), pixels.cpu()))
-
 
         rgb_save = (rgb.cpu().numpy()*255).astype(np.uint8)
-        imageio.imsave(os.path.join(result_dir, '{}_{}.png'.format(i, psnrs[-1])), rgb_save)
-
-        rgb_pred = rearrange(rgb, 'h w c -> 1 c h w').cpu()
-        rgb_gt = rearrange(pixels, 'h w c -> 1 c h w').cpu()
-        ssims.append(ssim_func(rgb_pred, rgb_gt))
-        # lpips
-        lpips.append(lpip_func(torch.clip(rgb_pred*2-1, -1, 1),
-                           torch.clip(rgb_gt*2-1, -1, 1)))
-
-
-psnr_avg = sum(psnrs) / len(psnrs)
-ssim_avg = sum(ssims)/len(ssims)
-lpip_avg = sum(lpips)/len(lpips)
-# psnr_ngp_avg = sum(psnrs_ngp) / len(psnrs_ngp)
-print(f"evaluation: psnr_avg={psnr_avg}, ssim = {ssim_avg}, lpip = {lpip_avg}")
-# train_dataset.training = True
+        rgb_video_writer.append_data(rgb_save)
+        
+rgb_video_writer.close()
+depth_video_writer.close()

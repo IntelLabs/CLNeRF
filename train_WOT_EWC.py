@@ -403,6 +403,10 @@ result_dir = f'results/WOT/EWC/{args.scene}_{args.rep_size}'
 os.makedirs(result_dir, exist_ok=True)
 radiance_field.eval()
 
+# save the trained model
+out_dict = {'model': radiance_field, 'occupancy_grid': occupancy_grid}
+torch.save(out_dict, result_dir+'/model.torchSave')
+
 psnrs, ssims, lpips = [], [], []
 # psnrs_ngp = []
 with torch.no_grad():
