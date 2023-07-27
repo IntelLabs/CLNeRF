@@ -16,4 +16,4 @@
 #     --task_number $task_number --task_curr $task_curr --dim_a 48 --dim_g 16 --scale 8.0 --downsample ${downsample} --rep_size $rep --vocab_size=5
 
 
-python render_video_NeRF.py --train_split train --scene $1 --rep_size $2 --vocab_size $3 --max_steps 50000 --task_number $3 --data_root $4 --frame_start $5 --frame_end $6
+python render_video_EWC.py --train_split train --scene $1 --rep_size $2 --vocab_size $3 --max_steps 50000 --task_number $3 --data_root $4 --frame_start $5 --frame_end $6

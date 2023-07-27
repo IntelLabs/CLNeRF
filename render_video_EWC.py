@@ -152,7 +152,7 @@ if __name__ == "__main__":
     grad_scaler = torch.cuda.amp.GradScaler(1)
     
     # just read out the model 
-    model_dir = f'results/WOT/NT_ER/{args.scene}_{args.rep_size}'
+    model_dir = f'results/WOT/EWC/{args.scene}_{args.rep_size}'
     out_dict_read = torch.load(model_dir+'/model.torchSave')
     radiance_field = out_dict_read['model'].to(device).eval()
     occupancy_grid = out_dict_read['occupancy_grid'].to(device)
@@ -191,7 +191,7 @@ if __name__ == "__main__":
 # print("step == max_steps = {}/{}/{},   step > 0 = {}, args.task_curr == (args.task_number - 1) = {}".format(step == max_steps, step, max_steps, step > 0, args.task_curr == (args.task_number - 1)))
 # if step == max_steps and step > 0 and args.task_curr == (args.task_number - 1):
 # evaluation
-result_dir = f'results/WOT/NT_ER/{args.scene}_{args.rep_size}/video'
+result_dir = f'results/WOT/EWC/{args.scene}_{args.rep_size}/video'
 os.makedirs(result_dir, exist_ok=True)
 
 
