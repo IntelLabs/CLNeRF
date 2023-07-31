@@ -121,9 +121,10 @@ class NeRFSystem(LightningModule):
 
         self.test_dataset = dataset(split='test', **kwargs)
         # self.rep_dataset = dataset(split='rep', **kwargs)
+        self.video_folder = f'results/video_demo/{self.hparams.render_fname}/{self.hparams.dataset_name}/{self.hparams.exp_name}_{self.hparams.render_fname}'
         os.makedirs(f'results/video_demo/{self.hparams.render_fname}/{self.hparams.dataset_name}/{self.hparams.exp_name}_{self.hparams.render_fname}', exist_ok=True)
-        self.rgb_video_writer = imageio.get_writer(f'results/video_demo/{self.hparams.render_fname}/{self.hparams.dataset_name}/{self.hparams.exp_name}_{self.hparams.render_fname}/rgb.mp4', fps=60)
-        self.depth_video_writer = imageio.get_writer(f'results/video_demo/{self.hparams.render_fname}/{self.hparams.dataset_name}/{self.hparams.exp_name}_{self.hparams.render_fname}/depth.mp4', fps=60)
+        self.rgb_video_writer = imageio.get_writer(self.video_folder+'/rgb.mp4', fps=60)
+        self.depth_video_writer = imageio.get_writer(self.video_folder+'/depth.mp4', fps=60)
 
     def configure_optimizers(self):
         # define additional parameters
@@ -213,7 +214,7 @@ class NeRFSystem(LightningModule):
         torch.cuda.empty_cache()
         print("start validation")
         if not self.hparams.no_save_test:
-            self.val_dir = f'results/video_demo/{self.hparams.dataset_name}/{self.hparams.exp_name}_{self.hparams.render_fname}'
+            self.val_dir = self.video_folder
             os.makedirs(self.val_dir, exist_ok=True)
 
     def validation_step(self, batch, batch_nb):

@@ -7,7 +7,7 @@ scene_name=street
 downsample=1.0
 scale=32.0
 
-rep=10
+rep=$1
 for ((i=0; i<$task_number; i++))
 do
     python train_ngpgv2_MEIL.py \

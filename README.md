@@ -1,6 +1,10 @@
 # CLNeRF
 Official implementation of 'CLNeRF: Continual Learning Meets NeRF'
 
+<iframe width="560" height="315" src="https://youtu.be/-FO2Khwjprg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+
 ![Example Image](https://github.com/ZhipengCai/CLNeRF/blob/main/demo/teaser.png)
 
 We study the problem of continual learning in the context of NeRFs. We propose a new dataset World Over Time (WOT) for this purpose, where during continual learning, the scene appearance and geometry can change over time (at different time step/task of continual learning). We propose a simple yet effective method CLNeRF which combines generative replay with advanced NeRF architectures so that a single NeRF model can efficiently adapt to gradually revealed new data, i.e., render scenes at different time with potential appearance and geometry changes, without the need to store historical images.
