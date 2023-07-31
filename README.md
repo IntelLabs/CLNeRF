@@ -1,8 +1,12 @@
 # CLNeRF
 Official implementation of 'CLNeRF: Continual Learning Meets NeRF'
 
-<iframe width="560" height="315" src="https://youtu.be/-FO2Khwjprg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<!-- <iframe width="560" height="315" src="https://youtu.be/-FO2Khwjprg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
 
+<video width="320" height="240" controls autoplay>
+  <source src="https://youtu.be/-FO2Khwjprg" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
 
 ![Example Image](https://github.com/ZhipengCai/CLNeRF/blob/main/demo/teaser.png)
