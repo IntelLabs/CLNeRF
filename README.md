@@ -13,11 +13,11 @@ Please consider giving us a star or cite our paper if you find it useful.
 Please contact Zhipeng Cai (homepage: https://zhipengcai.github.io/, email: czptc2h@gmail.com) if you have questions, comments or want to collaborate on this repository to make 
 
 ```bash
-@inproceedings{mildenhall2020nerf,
-title={NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis},
-author={Ben Mildenhall and Pratul P. Srinivasan and Matthew Tancik and Jonathan T. Barron and Ravi Ramamoorthi and Ren Ng},
-year={2020},
-booktitle={ECCV},
+@inproceedings{iccv23clnerf,
+title={CLNeRF: Continual Learning Meets NeRF},
+author={Zhipeng Cai, Matthias Müller},
+year={2023},
+booktitle={ICCV},
 }
 ```
 
