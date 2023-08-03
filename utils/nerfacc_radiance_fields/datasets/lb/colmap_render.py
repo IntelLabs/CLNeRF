@@ -281,13 +281,14 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
                         self.camtoworlds_interpolate = torch.cat((self.camtoworlds_interpolate, pose_curr.reshape(1,4,4)), dim = 0)
                         # print("self.ts_interpolate = {}, self.ts = {}".format(self.ts_interpolate, self.ts[i]))
                         self.task_ids_interpolate = torch.cat((self.task_ids_interpolate, torch.tensor([self.task_ids[i]])))
-
-                self.camtoworlds_interpolate = torch.cat((self.camtoworlds_interpolate, self.camtoworlds[0].reshape((1, 4, 4))), dim=0)
+                else:
+                    print("task_ids = {}, task_ids_interpolate = {}".format(self.task_ids[i], self.task_ids_interpolate[-1]))
+                self.camtoworlds_interpolate = torch.cat((self.camtoworlds_interpolate, self.camtoworlds[i].reshape((1, 4, 4))), dim=0)
                 self.task_ids_interpolate = torch.cat((self.task_ids_interpolate, torch.tensor([self.task_ids[i]])))
 
-                self.camtoworlds = self.camtoworlds_interpolate
-                self.task_ids = self.task_ids_interpolate
-            # print("[test video render]: self.camtoworlds_interpolate = {}/{}, self.task_ids_interpolate = {}/{}".format(self.camtoworlds_interpolate, self.camtoworlds_interpolate.shape, self.task_ids_interpolate, self.task_ids_interpolate.shape))
+            self.camtoworlds = self.camtoworlds_interpolate
+            self.task_ids = self.task_ids_interpolate
+            print("[test video render]: self.camtoworlds_interpolate = {}/{}, self.task_ids_interpolate = {}/{}".format(self.camtoworlds_interpolate, self.camtoworlds_interpolate.shape, self.task_ids_interpolate, self.task_ids_interpolate.shape))
             # exit()
 
     def split_tasks(self, num_img, task_number, task_split_method):

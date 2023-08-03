@@ -1,5 +1,5 @@
 # CLNeRF
-Official implementation of 'CLNeRF: Continual Learning Meets NeRF' (video demo: https://www.youtube.com/watch?v=-FO2Khwjprg)
+Official implementation of ICCV 2023 paper 'CLNeRF: Continual Learning Meets NeRF' (video demo: https://www.youtube.com/watch?v=-FO2Khwjprg)
 
 ![Example Image](https://github.com/ZhipengCai/CLNeRF/blob/main/demo/teaser.png)
 
@@ -7,8 +7,19 @@ We study the problem of continual learning in the context of NeRFs. We propose a
 
 To facilitate future research on continual NeRF, we provide the code to run different continual learning methods on different NeRF datasets (including WOT).
 
-<!-- some demo video/image here -->
+Please consider giving us a star or cite our paper if you find it useful.
 
+# Contact
+Please contact Zhipeng Cai (homepage: https://zhipengcai.github.io/, email: czptc2h@gmail.com) if you have questions, comments or want to collaborate on this repository to make 
+
+```bash
+@inproceedings{mildenhall2020nerf,
+title={NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis},
+author={Ben Mildenhall and Pratul P. Srinivasan and Matthew Tancik and Jonathan T. Barron and Ravi Ramamoorthi and Ren Ng},
+year={2020},
+booktitle={ECCV},
+}
+```
 
 # Installation
 
@@ -42,6 +53,3 @@ bash run_EWC.sh
 bash run_NT.sh
 
 ```
-
-# Contact
-Please contact Zhipeng Cai (homepage: https://zhipengcai.github.io/, email: czptc2h@gmail.com) if you have questions, comments or want to collaborate on this repository to make 

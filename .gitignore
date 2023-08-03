@@ -13,3 +13,8 @@ ckpts/
 scripts/data_prepare/job_prepare_WOT.sh
 
 job_run_CLNeRF.sh
+
+job*.sh
+test_run.sh
+
+demo/*.mp4

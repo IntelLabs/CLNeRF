@@ -114,11 +114,6 @@ class NeRFSystem(LightningModule):
                   'rep_dir': f'results/NGPGv2/CLNerf/{self.hparams.dataset_name}/{self.hparams.exp_name}/rep',
                   'nerf_rep': self.hparams.nerf_rep}
 
-        # os.makedirs(f'results//NGPA/CLNerf/{self.hparams.dataset_name}/{self.hparams.exp_name}/rep', exist_ok=True)
-        # self.train_dataset = dataset(split=self.hparams.split, **kwargs)
-        # self.train_dataset.batch_size = self.hparams.batch_size
-        # self.train_dataset.ray_sampling_strategy = self.hparams.ray_sampling_strategy
-
         self.test_dataset = dataset(split='test', **kwargs)
         # self.rep_dataset = dataset(split='rep', **kwargs)
         self.video_folder = f'results/video_demo/{self.hparams.render_fname}/{self.hparams.dataset_name}/{self.hparams.exp_name}_{self.hparams.render_fname}'
@@ -130,13 +125,6 @@ class NeRFSystem(LightningModule):
         # define additional parameters
         self.register_buffer('directions', self.test_dataset.directions.to(self.device))
         self.register_buffer('poses', self.test_dataset.poses.to(self.device))
-
-        # if self.hparams.optimize_ext:
-        #     N = len(self.train_dataset.poses)
-        #     self.register_parameter('dR',
-        #         nn.Parameter(torch.zeros(N, 3, device=self.device)))
-        #     self.register_parameter('dT',
-        #         nn.Parameter(torch.zeros(N, 3, device=self.device)))
 
         load_ckpt(self.model, self.hparams.weight_path)
 
