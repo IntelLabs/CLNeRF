@@ -31,7 +31,7 @@ export ROOT_DIR=dataset/WOT
 # 	1
 
 
-scene_name=mac
+scene_name=$1
 python merge_video.py \
 	"/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/WOT/NT_ER/${scene_name}_0/video/rgb.mp4" \
 	"/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/WOT/EWC/${scene_name}_0/video/rgb.mp4" \
@@ -45,5 +45,5 @@ python merge_video.py \
 	'ER' \
 	'MEIL-NeRF' \
 	${ROOT_DIR}/${scene_name} \
-	6 \
+	$2 \
 	1
