@@ -13,13 +13,34 @@ export ROOT_DIR=dataset/WOT
 
 # breville
 # write code to specify the task number
-scene_name=breville
+# scene_name=breville
 # python img2video.py \
 # 	'/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/WOT/NT_ER/breville_0/video' \
 # 	${ROOT_DIR}/${scene_name} \
 # 	5
 
+# python img2video.py \
+# 	'/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/WOT/EWC/breville_0/video' \
+# 	${ROOT_DIR}/${scene_name} \
+# 	5
+
+
+
+
+scene_name=$1
 python img2video.py \
-	'/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/WOT/NT_ER/breville_10/video' \
+	'/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/WOT/NT_ER/'${scene_name}'_0/video' \
 	${ROOT_DIR}/${scene_name} \
-	5
+	6
+
+
+python img2video.py \
+	'/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/WOT/NT_ER/'${scene_name}'_10/video' \
+	${ROOT_DIR}/${scene_name} \
+	6
+
+python img2video.py \
+	'/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/WOT/EWC/'${scene_name}'_0/video' \
+	${ROOT_DIR}/${scene_name} \
+	6
+
