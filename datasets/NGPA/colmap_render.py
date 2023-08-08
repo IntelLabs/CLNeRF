@@ -407,6 +407,7 @@ class ColmapDataset_NGPA_CLNerf_render(BaseDataset):
         self.read_intrinsics()
 
         self.task_number = kwargs.get('task_number', 5)
+        # print("[test]: task_number = {}".format(self.task_number))
         self.task_curr = kwargs.get('task_curr', 4)
         self.task_split_method = kwargs.get('task_split_method', 'seq')
         self.rep_size = kwargs.get('rep_size', 0)
@@ -459,7 +460,10 @@ class ColmapDataset_NGPA_CLNerf_render(BaseDataset):
             for name in sorted(img_names)
         ]
         # get the task id
+        
         task_ids, test_img_ids = name_to_task(img_paths)
+        # print("img_paths = {}, test_img_ids = {}".format(img_paths, test_img_ids))
+        # exit()
 
         w2c_mats = []
         bottom = np.array([[0, 0, 0, 1.]])
@@ -473,6 +477,13 @@ class ColmapDataset_NGPA_CLNerf_render(BaseDataset):
         w2c_mats = np.stack(w2c_mats, 0)
         poses = np.linalg.inv(w2c_mats)[
             perm, :3]  # (N_images, 3, 4) cam2world matrices
+
+
+
+        # poses_test = np.array(
+        #         [x for i, x in enumerate(poses) if i in test_img_ids])
+        # print("self.poses = {}/{}/{}".format(poses_test[0], poses_test[1], poses_test.shape))
+        # exit()
 
         pts3d = read_points3d_binary(
             os.path.join(self.root_dir, 'sparse/0/points3D.bin'))
@@ -510,6 +521,8 @@ class ColmapDataset_NGPA_CLNerf_render(BaseDataset):
         self.rays = []
         self.ts = []
 
+        # print("self.poses = {}/{}/{}".format(self.poses[0], self.poses[1], self.poses.shape))
+        # exit()
         # train test split
         if split == 'train' or split == 'rep':
             img_paths = [
@@ -532,6 +545,20 @@ class ColmapDataset_NGPA_CLNerf_render(BaseDataset):
             ]
 
         self.img_paths = img_paths
+        # sort img_paths, poses and task_ids according to the integer
+        # self.img_paths = sorted(self.img_paths, key=lambda f: int(extract_number(f)))
+
+        img_paths_with_id = list(enumerate(self.img_paths))
+        sorted_filenames = sorted(img_paths_with_id, key=custom_sort_key)
+        sorted_order = [index for index, _ in sorted_filenames]
+
+        self.img_paths = [filename for _, filename in sorted_filenames]
+        self.poses = self.poses[sorted_order]
+        self.task_ids = [self.task_ids[i_sort] for i_sort in sorted_order]
+        print("img_paths = {}/{}/{}".format(self.img_paths, sorted_order, self.task_ids))
+        print("self.poses.shape = {}/{}".format(self.poses.shape, self.poses[:2]))
+        # number = 
+        # exit()
 
         if split == 'train' or split == 'rep':
             # prepare training data
@@ -606,7 +633,7 @@ class ColmapDataset_NGPA_CLNerf_render(BaseDataset):
         # for i, img_path in enumerate(tqdm(img_paths)):
         for img_id, id_train in enumerate(tqdm(self.id_train_final)):
 
-            img_path = img_paths[id_train]
+            img_path = self.img_paths[id_train]
             buf = []  # buffer for ray attributes: rgb, etc
 
             img = read_image(img_path, self.img_wh, blend_a=False)
@@ -617,10 +644,13 @@ class ColmapDataset_NGPA_CLNerf_render(BaseDataset):
             self.ts += [self.task_ids[id_train]]
 
         self.rays = torch.stack(self.rays)  # (N_images, hw, ?)
+
+        print("id_train_final = {}".format(self.id_train_final))
         self.poses = torch.FloatTensor(
             self.poses[self.id_train_final])  # (N_images, 3, 4)
         self.ts = torch.tensor(self.ts).int()
-
+        print("self.poses.shape = {}/{}".format(self.poses.shape, self.poses[:2]))
+        
         if self.split == 'test':
             print(
                 "[test ts]: self.ts = {}, self.task_ids = {}, len(ts) = {}, len(self.poses) = {}"
@@ -635,7 +665,8 @@ class ColmapDataset_NGPA_CLNerf_render(BaseDataset):
             for i in range(1, len(self.poses)):
                 if self.task_ids[i] == self.task_ids_interpolate[-1]:
                     # produce N interpolated poses between the two poses
-                    interpolated_poses = interpolate_poses(self.poses_interpolate[-1].reshape((3,4)), self.poses[i].reshape(3,4), self.frames_per2images)
+                    # interpolated_poses = interpolate_poses(self.poses_interpolate[-1].reshape((3,4)), self.poses[i].reshape(3,4), self.frames_per2images)
+                    interpolated_poses = interpolate_poses_shortest(self.poses_interpolate[-1].reshape((3,4)), self.poses[i].reshape(3,4), self.frames_per2images)
                     for pose_curr in interpolated_poses:
                         self.poses_interpolate = torch.cat((self.poses_interpolate, pose_curr.reshape(1,3,4)), dim = 0)
                         # print("self.ts_interpolate = {}, self.ts = {}".format(self.ts_interpolate, self.ts[i]))

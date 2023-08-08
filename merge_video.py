@@ -451,6 +451,9 @@ use_UB = int(sys.argv[14])
 textB = 'CLNeRF'
 textC = 'UB (reference)'
 
+print("task_number = {}".format(task_number))
 task_ids = get_task_ids(root_dir, task_number)
+
+# print("task_ids = {}".format(task_ids))
 
 merge_videos_multi(videoA_path, videoB_path, reference_video_path, output_path, textA, textB, textC, task_ids, use_UB)

@@ -16,7 +16,7 @@ from ..utils import Rays
 from ..colmap_utils import \
     read_cameras_binary, read_images_binary, read_points3d_binary
 
-from ..ray_utils import interpolate_poses
+from ..ray_utils import interpolate_poses, custom_sort_key
 
 import math, random
 
@@ -98,12 +98,23 @@ def _load_colmap(root_fp: str, subject_id: str, split: str, factor: int = 1):
     # Convert extrinsics to camera-to-world.
     camtoworlds = np.linalg.inv(w2c_mats)
 
-    image_names = [imdata[k].name for k in imdata]
+
+    image_names_ori = [imdata[k].name for k in imdata]
     # Previous Nerf results were generated with images sorted by filename,
     # ensure metrics are reported on the same test set.
-    inds = np.argsort(image_names)
-    image_names = [image_names[i] for i in inds]
-    camtoworlds = camtoworlds[inds]
+
+    img_paths_with_id = list(enumerate(image_names_ori))
+    sorted_filenames = sorted(img_paths_with_id, key=custom_sort_key)
+    inds = [index for index, _ in sorted_filenames]
+
+    # inds = np.argsort(image_names)
+    image_names = [image_names_ori[i] for i in inds]
+
+    inds_ori = np.argsort(image_names_ori)
+    image_names_ori = [image_names_ori[i] for i in inds_ori]
+    # print("image_names = {}/{}".format(image_names, inds))
+    # exit()
+    # camtoworlds = camtoworlds[inds]
 
     # Load images.
     if factor > 1:
@@ -120,9 +131,12 @@ def _load_colmap(root_fp: str, subject_id: str, split: str, factor: int = 1):
     colmap_files = sorted(os.listdir(colmap_image_dir))
     image_files = sorted(os.listdir(image_dir))
     colmap_to_image = dict(zip(colmap_files, image_files))
-    image_paths = [os.path.join(image_dir, f) for f in image_names]
+    image_paths = [os.path.join(image_dir, f) for f in image_names_ori]
     # get the task id
-    task_ids, test_img_ids, train_img_ids = name_to_task(image_paths)
+
+    task_ids, test_img_ids, train_img_ids = name_to_task(image_names_ori)
+    # print("image_names_ori = {}, test_img_ids = {}".format(image_names_ori, test_img_ids))
+    # exit()
 
     print("loading images")
 
@@ -130,13 +144,20 @@ def _load_colmap(root_fp: str, subject_id: str, split: str, factor: int = 1):
     images = np.stack(images, axis=0)
 
     # Select the split.
-    all_indices = np.arange(images.shape[0])
+    all_indices = np.arange(images.shape[0])[inds_ori]
+
+    # print("camtoworlds = {}/{}/{}".format(camtoworlds[inds_ori[0]], camtoworlds[inds_ori[1]], camtoworlds.shape))
+    # exit()
+    # print("all_indices = {}".format(all_indices))
 
     split_indices = {
         "test": all_indices[test_img_ids],
         "train": all_indices[train_img_ids],
     }
     indices = split_indices[split]
+
+    # print("camtoworlds = {}/{}/{}".format(camtoworlds[indices[0]], camtoworlds[indices[1]], camtoworlds.shape))
+    # exit()
 
     # center and rescale camera poses
     # center all cameras to AABB center
@@ -164,11 +185,15 @@ def _load_colmap(root_fp: str, subject_id: str, split: str, factor: int = 1):
     camtoworlds[:, :3, 3] -= shift
     camtoworlds[:, :3, 3] /= scale
 
+
+
     # All per-image quantities must be re-indexed using the split indices.
     images = images[indices]
     camtoworlds = camtoworlds[indices]
 
-    return images, camtoworlds, K, np.array(task_ids)[indices]
+    # print("image_paths = {}, indices = {}/{}, camtowolds = {}, task_ids = {}/{}".format(image_paths[:20], image_paths[indices[0]], image_paths[indices[1]], camtoworlds[:2], np.array(task_ids)[test_img_ids], len(indices)))
+    # exit()
+    return images, camtoworlds, K, np.array(task_ids)[test_img_ids]
 
 
 class SubjectLoader_lb(torch.utils.data.Dataset):

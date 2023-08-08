@@ -4,6 +4,29 @@ from kornia import create_meshgrid
 from einops import rearrange
 import scipy
 
+import re
+import scipy.spatial.transform
+
+def extract_numbers(filename):
+    # The regex extracts two numbers separated by underscore before the .png extension
+    match = re.search(r'_([0-9]+)_([0-9]+)\.png$', filename)
+    if match:
+        return int(match.group(1)), int(match.group(2))
+    else:
+        return None, None
+
+def custom_sort_key(item):
+    filename = item[1]
+    first_number, second_number = extract_numbers(filename)
+    return first_number, second_number
+
+# filename = "..._100.png"
+# number = extract_number(filename)
+# if number:
+#     print(f"Extracted number: {number}")
+# else:
+#     print("Pattern not found!")
+
 def interpolate_poses(start_pose, end_pose, N):
     assert start_pose.shape == (3, 4)
     assert end_pose.shape == (3, 4)
@@ -32,6 +55,40 @@ def interpolate_poses(start_pose, end_pose, N):
         inter_rot = torch.tensor(scipy.spatial.transform.Rotation.from_quat(inter_rot_q.numpy()).as_matrix(), dtype=torch.float32)
         
         # Reconstruct the pose matrix
+        inter_pose = torch.cat((inter_rot, inter_trans.unsqueeze(-1)), dim=-1)
+        intermediate_poses.append(inter_pose)
+    
+    return intermediate_poses
+
+def interpolate_poses_shortest(start_pose, end_pose, N):
+    assert start_pose.shape == (3, 4)
+    assert end_pose.shape == (3, 4)
+
+    start_rot = start_pose[:3, :3]
+    start_trans = start_pose[:3, 3]
+    end_rot = end_pose[:3, :3]
+    end_trans = end_pose[:3, 3]
+
+    start_rot_q = torch.tensor(scipy.spatial.transform.Rotation.from_matrix(start_rot.numpy()).as_quat(), dtype=torch.float32)
+    end_rot_q = torch.tensor(scipy.spatial.transform.Rotation.from_matrix(end_rot.numpy()).as_quat(), dtype=torch.float32)
+
+    # Ensure the quaternions have the shortest arc for interpolation
+    if torch.dot(start_rot_q, end_rot_q) < 0:
+        end_rot_q = -end_rot_q
+
+    intermediate_poses = []
+
+    for i in range(1, N + 1):
+        t = i / (N + 1)  # Normalized interpolation factor
+
+        # Lerp for translation
+        inter_trans = start_trans * (1 - t) + end_trans * t
+
+        # Slerp for rotation
+        inter_rot_q = torch.lerp(start_rot_q, end_rot_q, t)
+        inter_rot_q /= inter_rot_q.norm()
+        inter_rot = torch.tensor(scipy.spatial.transform.Rotation.from_quat(inter_rot_q.numpy()).as_matrix(), dtype=torch.float32)
+
         inter_pose = torch.cat((inter_rot, inter_trans.unsqueeze(-1)), dim=-1)
         intermediate_poses.append(inter_pose)
     
