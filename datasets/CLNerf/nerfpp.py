@@ -137,7 +137,6 @@ class NeRFPPDataset_CLNerf(BaseDataset):
 
             print(f'Loading {len(img_paths)} {split} images ...')
             for id_train in tqdm(self.id_train_final):
-            # for img_path, pose in tqdm(zip(img_paths, poses)):
                 img_path, pose = img_paths[id_train], poses[id_train]
                 self.poses += [np.loadtxt(pose).reshape(4, 4)[:3]]
 

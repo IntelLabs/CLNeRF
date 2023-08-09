@@ -23,13 +23,10 @@ task_number = int(sys.argv[3])
 
 # get the number of frames from the corresponding dataset and check whether we have the same number of frames
 task_ids = get_task_ids(root_dir, task_number)
-# print("task_ids = {}".format(len(task_ids)))
-# exit()
 
 # filenames = sorted((fn for fn in os.listdir(folder) if fn.endswith('.png')))
 filenames = sorted((fn for fn in os.listdir(folder) if fn.endswith('.png')), key=lambda f: int(os.path.splitext(f)[0]))
 
-# exit()
 if len(filenames) != len(task_ids):
     print("[error] len(fnames) = {}, task_ids = {}".format(len(filenames), len(task_ids)))
     exit()

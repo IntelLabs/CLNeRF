@@ -264,14 +264,6 @@ if __name__ == "__main__":
                 pixels = data["pixels"]
                 task_id = data['task_id']
 
-                # # update occupancy grid
-                # occupancy_grid.every_n_step(
-                #     step=step,
-                #     occ_eval_fn=lambda x: radiance_field.query_opacity(
-                #         x, render_step_size
-                #     ),
-                # )
-
                 occupancy_grid.every_n_step(
                     step=step,
                     occ_eval_fn=lambda x: radiance_field.query_opacity(
@@ -280,8 +272,6 @@ if __name__ == "__main__":
                 )
 
                 # render
-                # print("near_plane = {}, task_id = {}/{}, rays = {}/{}".format(near_plane, task_id, task_id.shape, rays[0], rays[0].shape))
-                # exit()
                 rgb, acc, depth, n_rendering_samples = render_image(
                     radiance_field,
                     occupancy_grid,
@@ -395,6 +385,5 @@ with torch.no_grad():
 psnr_avg = sum(psnrs) / len(psnrs)
 ssim_avg = sum(ssims)/len(ssims)
 lpip_avg = sum(lpips)/len(lpips)
-# psnr_ngp_avg = sum(psnrs_ngp) / len(psnrs_ngp)
 print(f"evaluation: psnr_avg={psnr_avg}, ssim = {ssim_avg}, lpip = {lpip_avg}")
-# train_dataset.training = True
+

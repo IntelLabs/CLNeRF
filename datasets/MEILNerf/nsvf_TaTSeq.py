@@ -71,7 +71,7 @@ class NSVFDataset_TaTSeq_MEIL(BaseDataset):
             imgs_per_task = len(poses) // task_number
             for j in range(task_number):
                 task_id += ([j] * imgs_per_task) 
-                # task_id.append()
+                
             task_id += ([task_number-1] * (len(poses)- imgs_per_task * task_number)) 
         return task_id
 
@@ -171,8 +171,6 @@ class NSVFDataset_TaTSeq_MEIL(BaseDataset):
                 self.id_rep_MEIL = []
                 self.id_curr_MEIL = []
 
-            # for img_path, pose in tqdm(zip(img_paths, poses)):
-            # for id_train in tqdm(self.id_train_final):
             for j, id_train in enumerate(tqdm(self.id_train_final)):
                 if self.split == 'train':
                     if id_train in self.id_rep:

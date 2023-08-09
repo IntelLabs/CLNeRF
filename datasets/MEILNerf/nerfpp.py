@@ -158,8 +158,6 @@ class NeRFPPDataset_MEIL(BaseDataset):
             self.img_paths = img_paths
 
             print(f'Loading {len(img_paths)} {split} images ...')
-            # for id_train in tqdm(self.id_train_final):
-            # for img_path, pose in tqdm(zip(img_paths, poses)):
             if self.split == 'train':
                 self.id_rep_MEIL = []
                 self.id_curr_MEIL = []

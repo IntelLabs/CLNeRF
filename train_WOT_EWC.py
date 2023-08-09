@@ -20,8 +20,6 @@ import torch.utils.data
 import sys
 # sys.path.append('/mnt/beegfs/mixed-tier/work/zcai/WorkSpace/NeRF/nerfacc/examples')
 import tqdm
-# from radiance_fields.mlp import VanillaNeRFRadianceFieldG
-# from utils import render_image, set_random_seed
 from utils.nerfacc_radiance_fields.mlp import VanillaNeRFRadianceFieldG
 from utils.nerfacc_radiance_fields.utils import render_image, set_random_seed
 
@@ -395,9 +393,6 @@ if __name__ == "__main__":
 
                 step += 1
 
-
-# print("step == max_steps = {}/{}/{},   step > 0 = {}, args.task_curr == (args.task_number - 1) = {}".format(step == max_steps, step, max_steps, step > 0, args.task_curr == (args.task_number - 1)))
-# if step == max_steps and step > 0 and args.task_curr == (args.task_number - 1):
 # evaluation
 result_dir = f'results/WOT/EWC/{args.scene}_{args.rep_size}'
 os.makedirs(result_dir, exist_ok=True)
@@ -450,25 +445,8 @@ with torch.no_grad():
         lpips.append(lpip_func(torch.clip(rgb_pred*2-1, -1, 1),
                            torch.clip(rgb_gt*2-1, -1, 1)))
 
-        # psnr_ngp = psnr_func.compute()
-        # psnr_func.reset()
-        # psnrs_ngp.append(psnr_ngp.item())
-
-        # print("rgb.shape = {}, pixels.shape = {}".format(rgb.shape, pixels.shape))
-        # if i == 10:
-        #     break
-        # imageio.imwrite(
-        #     "acc_binary_test.png",
-        #     ((acc > 0).float().cpu().numpy() * 255).astype(np.uint8),
-        # )
-        # imageio.imwrite(
-        #     "rgb_test.png",
-        #     (rgb.cpu().numpy() * 255).astype(np.uint8),
-        # )
-        # break
 psnr_avg = sum(psnrs) / len(psnrs)
 ssim_avg = sum(ssims)/len(ssims)
 lpip_avg = sum(lpips)/len(lpips)
-# psnr_ngp_avg = sum(psnrs_ngp) / len(psnrs_ngp)
 print(f"evaluation: psnr_avg={psnr_avg}, ssim = {ssim_avg}, lpip = {lpip_avg}")
-# train_dataset.training = True
+

@@ -51,5 +51,12 @@ bash run_ER.sh
 bash run_EWC.sh
 # run experiments on NT (naive training/finetuning on the sequential data)
 bash run_NT.sh
-
+# render video using CLNeRF model
+scene=breville
+task_number=5
+task_curr=4
+rep=10
+scale=8.0 # change to the right scale according to the corresponding training script (scripts/NT/WOT/breville.sh)
+ckpt_path=/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/ckpts/NGPGv2_CL/colmap_ngpa_CLNerf/${scene}_10/epoch=19-v4.ckpt # change to your ckpt path
+bash scripts/CLNeRF/WOT/render_video.sh $task_number $task_curr $scene $ckpt_path $rep $scale $render_fname
 ```

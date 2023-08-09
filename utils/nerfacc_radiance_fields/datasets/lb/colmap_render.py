@@ -107,14 +107,10 @@ def _load_colmap(root_fp: str, subject_id: str, split: str, factor: int = 1):
     sorted_filenames = sorted(img_paths_with_id, key=custom_sort_key)
     inds = [index for index, _ in sorted_filenames]
 
-    # inds = np.argsort(image_names)
     image_names = [image_names_ori[i] for i in inds]
 
     inds_ori = np.argsort(image_names_ori)
     image_names_ori = [image_names_ori[i] for i in inds_ori]
-    # print("image_names = {}/{}".format(image_names, inds))
-    # exit()
-    # camtoworlds = camtoworlds[inds]
 
     # Load images.
     if factor > 1:
@@ -146,9 +142,6 @@ def _load_colmap(root_fp: str, subject_id: str, split: str, factor: int = 1):
     # Select the split.
     all_indices = np.arange(images.shape[0])[inds_ori]
 
-    # print("camtoworlds = {}/{}/{}".format(camtoworlds[inds_ori[0]], camtoworlds[inds_ori[1]], camtoworlds.shape))
-    # exit()
-    # print("all_indices = {}".format(all_indices))
 
     split_indices = {
         "test": all_indices[test_img_ids],
@@ -156,8 +149,6 @@ def _load_colmap(root_fp: str, subject_id: str, split: str, factor: int = 1):
     }
     indices = split_indices[split]
 
-    # print("camtoworlds = {}/{}/{}".format(camtoworlds[indices[0]], camtoworlds[indices[1]], camtoworlds.shape))
-    # exit()
 
     # center and rescale camera poses
     # center all cameras to AABB center
@@ -191,8 +182,6 @@ def _load_colmap(root_fp: str, subject_id: str, split: str, factor: int = 1):
     images = images[indices]
     camtoworlds = camtoworlds[indices]
 
-    # print("image_paths = {}, indices = {}/{}, camtowolds = {}, task_ids = {}/{}".format(image_paths[:20], image_paths[indices[0]], image_paths[indices[1]], camtoworlds[:2], np.array(task_ids)[test_img_ids], len(indices)))
-    # exit()
     return images, camtoworlds, K, np.array(task_ids)[test_img_ids]
 
 

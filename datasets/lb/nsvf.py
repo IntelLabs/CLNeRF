@@ -127,7 +127,6 @@ class NSVFDataset_lb(BaseDataset):
            
             print(f'Loading {len(self.id_train_final)} {split} images ...')
             print('id_train_final = {}'.format(self.id_train_final))
-            # for img_path, pose in tqdm(zip(img_paths, poses)):
             for id_train in tqdm(self.id_train_final):
                 img_path, pose = img_paths[id_train], poses[id_train]
                 c2w = np.loadtxt(pose)[:3]

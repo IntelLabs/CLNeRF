@@ -70,7 +70,6 @@ def merge_videos_multi(videoA_paths, videoB_path, reference_video_path, output_p
         frame_to_switch.append(frame_curr)
 
     print("frame_to_slide = {}, frame_to_switch = {}".format(frame_to_slide, frame_to_switch))
-    # exit()
     
     # flag of the method used
     frame_curr = 0
@@ -78,7 +77,6 @@ def merge_videos_multi(videoA_paths, videoB_path, reference_video_path, output_p
     id_slide = 0
     id_switch = 0
     print("frame_curr = {}, method_curr = {}".format(frame_curr, method_curr))
-    # exit()
 
     while videoAs[0].isOpened() and videoB.isOpened() and reference_video.isOpened():
         for i in range(len(textAs)):
@@ -140,8 +138,7 @@ def merge_videos_multi(videoA_paths, videoB_path, reference_video_path, output_p
         draw.text((int(width * 0.7), int(height * 0.92)), textB+" (t = {})".format(task_id + 1), font=fontA, fill=(255,255,255))
         if use_UB:
             draw.text((10, ref_height // 4 * 0.85), textC, font=fontB, fill=(255,255,255))
-# cv2.putText(merged_frame, 'UB (reference)', (10, ref_height // 4 - 10), cv2.FONT_HERSHEY_SIMPLEX, font_scale_ref, (255,255,255), 1, cv2.LINE_AA)
-        
+
         # Convert back to OpenCV image (numpy array) and to BGR color scheme
         merged_frame = cv2.cvtColor(np.array(merged_frame_pil), cv2.COLOR_RGB2BGR)
 
@@ -203,13 +200,11 @@ def merge_videos_multi(videoA_paths, videoB_path, reference_video_path, output_p
                     fontB = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size=int((ref_width // 4) / 15))
 
                 # Add bounding boxes and descriptive texts
-                # if loc_curr > widthA * 0.3:
                 draw.text((10, int(height * 0.92)), textAs[method_curr], font=fontA, fill=(255,255,255))
                 draw.text((int(width * 0.7), int(height * 0.92)), textB+" (t = {})".format(task_id+1), font=fontA, fill=(255,255,255))
                 if use_UB:
                     draw.text((10, ref_height // 4 * 0.85), textC, font=fontB, fill=(255,255,255))
-        # cv2.putText(merged_frame, 'UB (reference)', (10, ref_height // 4 - 10), cv2.FONT_HERSHEY_SIMPLEX, font_scale_ref, (255,255,255), 1, cv2.LINE_AA)
-                
+
                 # Convert back to OpenCV image (numpy array) and to BGR color scheme
                 merged_frame = cv2.cvtColor(np.array(merged_frame_pil), cv2.COLOR_RGB2BGR)
 
@@ -219,22 +214,12 @@ def merge_videos_multi(videoA_paths, videoB_path, reference_video_path, output_p
                 # Write the merged frame to the output video
                 out.append_data(merged_frame_rgb)
             
-            # id_FaM += 1
-            # if id_FaM == len(frame_and_method):
-            #     method_curr = 0
-            # else:
-            #     method_curr = 
 
         frame_curr += 1
         if id_switch < len(frame_to_switch) and frame_curr == frame_to_switch[id_switch]:
             id_switch += 1
             method_curr = (method_curr + 1) % 4
             print("frame_curr = {}, switch to method {}".format(frame_curr, method_curr))
-
-        # # Show the merged frame (optional)
-        # cv2.imshow("Merged Video", merged_frame)
-        # if cv2.waitKey(1) & 0xFF == ord("q"):
-        #     break
 
     # Release resources
     for i in range(len(videoAs)):
@@ -260,8 +245,6 @@ def merge_videos(videoA_path, videoB_path, reference_video_path, output_path, te
 
     # Create an imageio writer object to output the merged video
     out = imageio.get_writer(output_path, fps=30)
-
-    # print("num_frames = {}, task_ids_number = {}".format(int(videoA.get(cv2.CAP_PROP_FRAME_COUNT)), len(task_ids)))
 
     task_prev = -1
     while videoA.isOpened() and videoB.isOpened() and reference_video.isOpened():
@@ -319,8 +302,7 @@ def merge_videos(videoA_path, videoB_path, reference_video_path, output_path, te
         draw.text((int(widthA * 0.7), int(heightA * 0.92)), textB+" (t = {})".format(task_id + 1), font=fontA, fill=(255,255,255))
         if use_UB:
             draw.text((10, ref_height // 4 * 0.85), textC, font=fontB, fill=(255,255,255))
-# cv2.putText(merged_frame, 'UB (reference)', (10, ref_height // 4 - 10), cv2.FONT_HERSHEY_SIMPLEX, font_scale_ref, (255,255,255), 1, cv2.LINE_AA)
-        
+     
         # Convert back to OpenCV image (numpy array) and to BGR color scheme
         merged_frame = cv2.cvtColor(np.array(merged_frame_pil), cv2.COLOR_RGB2BGR)
 
@@ -387,8 +369,7 @@ def merge_videos(videoA_path, videoB_path, reference_video_path, output_path, te
                 draw.text((int(widthA * 0.7), int(heightA * 0.92)), textB+" (t = {})".format(task_id+1), font=fontA, fill=(255,255,255))
                 if use_UB:
                     draw.text((10, ref_height // 4 * 0.85), textC, font=fontB, fill=(255,255,255))
-        # cv2.putText(merged_frame, 'UB (reference)', (10, ref_height // 4 - 10), cv2.FONT_HERSHEY_SIMPLEX, font_scale_ref, (255,255,255), 1, cv2.LINE_AA)
-                
+     
                 # Convert back to OpenCV image (numpy array) and to BGR color scheme
                 merged_frame = cv2.cvtColor(np.array(merged_frame_pil), cv2.COLOR_RGB2BGR)
 
@@ -399,39 +380,11 @@ def merge_videos(videoA_path, videoB_path, reference_video_path, output_path, te
                 out.append_data(merged_frame_rgb)
                         
 
-        # # Show the merged frame (optional)
-        # cv2.imshow("Merged Video", merged_frame)
-        # if cv2.waitKey(1) & 0xFF == ord("q"):
-        #     break
-
     # Release resources
     videoA.release()
     videoB.release()
     reference_video.release()
     out.close()
-    # cv2.destroyAllWindows()
-
-# # # Replace these paths with your own video paths
-# videoA_path = sys.argv[1]
-# videoB_path = sys.argv[2]
-# reference_video_path = sys.argv[3]
-# output_path = sys.argv[4]
-# textA = sys.argv[5]
-# root_dir = sys.argv[6]
-# task_number = int(sys.argv[7])
-# use_UB = int(sys.argv[8])
-
-# # videoA_path = "/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/video_demo/MEIL/colmap_ngpa_CLNerf_render/ninja_10_MEIL/rgb.mp4"
-# # videoB_path = "/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/video_demo/colmap_ngpa_CLNerf_render/ninja_10_CLNeRF/rgb.mp4"
-# # reference_video_path = "/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/video_demo/colmap_ngpa_CLNerf_render/ninja_10_CLNeRF/rgb.mp4"
-# # output_path = "/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/test_videos/output_ref_bb.mp4"
-# # textA = 'MEIL'
-# textB = 'CLNeRF'
-# textC = 'UB (reference)'
-
-# task_ids = get_task_ids(root_dir, task_number)
-
-# merge_videos(videoA_path, videoB_path, reference_video_path, output_path, textA, textB, textC, task_ids, use_UB)
 
 # # Replace these paths with your own video paths
 videoA_path = [sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]]
@@ -443,17 +396,11 @@ root_dir = sys.argv[12]
 task_number = int(sys.argv[13])
 use_UB = int(sys.argv[14])
 
-# videoA_path = "/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/video_demo/MEIL/colmap_ngpa_CLNerf_render/ninja_10_MEIL/rgb.mp4"
-# videoB_path = "/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/video_demo/colmap_ngpa_CLNerf_render/ninja_10_CLNeRF/rgb.mp4"
-# reference_video_path = "/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/video_demo/colmap_ngpa_CLNerf_render/ninja_10_CLNeRF/rgb.mp4"
-# output_path = "/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/results/test_videos/output_ref_bb.mp4"
-# textA = 'MEIL'
 textB = 'CLNeRF'
 textC = 'UB (reference)'
 
 print("task_number = {}".format(task_number))
 task_ids = get_task_ids(root_dir, task_number)
 
-# print("task_ids = {}".format(task_ids))
 
 merge_videos_multi(videoA_path, videoB_path, reference_video_path, output_path, textA, textB, textC, task_ids, use_UB)

@@ -150,8 +150,7 @@ class NSVFDataset_MEILNeRF(BaseDataset):
 
         print(f'Loading {len(self.id_train_final)} {split} images ...')
         print('id_train_final = {}'.format(self.id_train_final))
-        # for img_path, pose in tqdm(zip(img_paths, poses)):
-
+        
         self.rays = []
         self.poses = []
 

@@ -106,7 +106,6 @@ def read_image_phototour(img_path, blend_a=True, test_img_gen = False, img_id = 
 
     if test_img_gen:
         print("[test after train]: img_id= {}, img = {}/{}/{}".format(img_id, img.shape, img.min(), img.max()))
-        # exit()
         # save the training image
         print("saving training image to {}".format(
             'test/train_img_rep{}.jpg'.format(img_id)))
@@ -131,7 +130,6 @@ def read_image_phototour(img_path, blend_a=True, test_img_gen = False, img_id = 
         img = img[:, : img_hw[1]//2]
     elif crop_region == 'right':
         img = img[:, img_hw[1]//2 :]
-        # print("[test]")
 
     img = rearrange(img, 'h w c -> (h w) c')
 

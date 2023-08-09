@@ -332,6 +332,4 @@ with torch.no_grad():
 psnr_avg = sum(psnrs) / len(psnrs)
 ssim_avg = sum(ssims)/len(ssims)
 lpip_avg = sum(lpips)/len(lpips)
-# psnr_ngp_avg = sum(psnrs_ngp) / len(psnrs_ngp)
 print(f"evaluation: psnr_avg={psnr_avg}, ssim = {ssim_avg}, lpip = {lpip_avg}")
-# train_dataset.training = True

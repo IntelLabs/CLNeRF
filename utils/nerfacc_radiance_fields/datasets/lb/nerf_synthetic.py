@@ -15,14 +15,6 @@ import math, random
 
 def _load_renderings(root_fp: str, subject_id: str, split: str):
     """Load images from disk."""
-    # if not root_fp.startswith("/"):
-    #     # allow relative path. e.g., "./data/nerf_synthetic/"
-    #     root_fp = os.path.join(
-    #         os.path.dirname(os.path.abspath(__file__)),
-    #         "..",
-    #         "..",
-    #         root_fp,
-    #     )
 
     data_dir = os.path.join(root_fp, subject_id)
     with open(
@@ -158,10 +150,8 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
                 if id_rep is not None:
                     self.id_rep = id_rep
                     print("self.id_rep = {}".format(self.id_rep))
-                # self.id_train_final = self.id_task_curr + random.choices(self.id_rep, k = self.rep_size)
                 self.id_train_final = self.id_task_curr + self.id_rep
             # perform reservoir sampling
-            # print("self.id_train_final = {}, rep_size = {}".format(self.id_train_final, self.rep_size))
             if len(self.id_train_final) <= self.rep_size:
                 self.rep_buf = self.id_train_final
             else:

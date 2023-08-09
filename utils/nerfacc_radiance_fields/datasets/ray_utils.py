@@ -133,16 +133,10 @@ def get_ray_directions(H, W, K, device='cpu', random=False, return_uv=False, fla
             torch.stack([(u-cx+0.5)/fx, (v-cy+0.5)/fy, torch.ones_like(u)], -1)
     
     if crop_region  == 'left':
-        # print("directions.shape = {}".format(directions.shape))
         directions = directions[:, :directions.shape[1]//2]
-        # print("directions.shape = {}".format(directions.shape))
-        # exit()
     elif crop_region == 'right':
-        # print("directions.shape = {}".format(directions.shape))
         directions = directions[:, directions.shape[1]//2:]
-        # print("directions.shape = {}".format(directions.shape))
-        # exit()
-        # pass
+
 
     if flatten:
         directions = directions.reshape(-1, 3)

@@ -21,55 +21,22 @@ import math, random
 # from .color_utils import read_image
 
 def _load_renderings(data_dir: str, split: str):
-
-    # xyz_min, xyz_max = \
-    #     np.loadtxt(os.path.join(data_dir, 'bbox.txt'))[:6].reshape(2, 3)
-    # shift = (xyz_max+xyz_min)/2
-    # scale = (xyz_max-xyz_min).max()/2 * 1.05 # enlarge a little
-
-
-    # if split == 'train': prefix = '0_'
-    # elif split == 'test': prefix = '1_' # test set for real scenes
-    # else: raise ValueError(f'{split} split not recognized!')
-
-    # img_paths = sorted(glob.glob(os.path.join(data_dir, 'rgb', prefix+'*.png')))
-    # poses = sorted(glob.glob(os.path.join(data_dir, 'pose', prefix+'*.txt')))
-
     img_paths = sorted(glob.glob(os.path.join(data_dir, split, 'rgb/*')))
     poses = sorted(glob.glob(os.path.join(data_dir, split, 'pose/*.txt')))
 
-    # with open(
-    #     os.path.join(data_dir, "transforms_{}.json".format(split)), "r"
-    # ) as fp:
-    #     meta = json.load(fp)
     images = []
     camtoworlds = []
 
-    # for i in range(len(meta["frames"])):
-    #     frame = meta["frames"][i]
-    #     fname = os.path.join(data_dir, frame["file_path"] + ".png")
-    #     rgba = imageio.imread(fname)
-    #     camtoworlds.append(frame["transform_matrix"])
-    #     images.append(rgba)
+
     print(f'Loading {len(img_paths)} {split} images ...')
     for img_path, pose in tqdm(zip(img_paths, poses)):
-        # c2w = np.loadtxt(pose)[:3]
-        # c2w[:, 3] -= shift
-        # c2w[:, 3] /= (2*scale/3.0) # to bound the scene inside [-1.5, 1.5]
         camtoworlds += [np.loadtxt(pose).reshape(4, 4)[:3]]
 
         rgba = imageio.imread(img_path)
-        # print("rgba.shape = {}".format(rgba.shape))
         images.append(rgba)
 
     images = np.stack(images, axis=0)
     camtoworlds = np.stack(camtoworlds, axis=0)
-
-    # camtoworlds = center_poses(camtoworlds)
-    
-    # h, w = images.shape[1:3]
-    # camera_angle_x = float(meta["camera_angle_x"])
-    # focal = 0.5 * w / np.tan(0.5 * camera_angle_x)
 
     return images, camtoworlds
 
@@ -156,8 +123,6 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
         
         if split == 'train':
             # split the training data into 5 tasks
-            # random.seed(0)
-            # self.task_ids = self.split_tasks(num_img, self.task_number, self.task_split_method)
             # prepare training data
             self.id_task_curr = []
             self.id_rep = []
@@ -175,10 +140,8 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
                 if id_rep is not None:
                     self.id_rep = id_rep
                     print("self.id_rep = {}".format(self.id_rep))
-                # self.id_train_final = self.id_task_curr + random.choices(self.id_rep, k = self.rep_size)
                 self.id_train_final = self.id_task_curr + self.id_rep
             # perform reservoir sampling
-            # print("self.id_train_final = {}, rep_size = {}".format(self.id_train_final, self.rep_size))
             if len(self.id_train_final) <= self.rep_size:
                 self.rep_buf = self.id_train_final
             else:
@@ -191,7 +154,6 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
             print("rep_buf = {}".format(self.rep_buf))
 
 
-            # print("[test] use {} ({}) from {} images (task_number = {}, rep_size = {})".format(len(self.id_train_final), self.id_train_final, num_img, self.task_number, self.rep_size))
         else:
             self.id_train_final = list(range(num_img))
         self.id_train_final.sort()
@@ -203,8 +165,7 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
             self.images = torch.from_numpy(self.images).to(torch.uint8)
             self.camtoworlds = torch.from_numpy(self.camtoworlds).to(torch.float32)
         
-        # self.images = torch.from_numpy(self.images).to(torch.uint8)
-        # self.camtoworlds = torch.from_numpy(self.camtoworlds).to(torch.float32)
+
         self.read_intrinsics()
 
         assert self.images.shape[1:3] == (self.HEIGHT, self.WIDTH)
@@ -215,7 +176,6 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
         K = np.loadtxt(glob.glob(os.path.join(self.root_dir, 'train/intrinsics/*.txt'))[0],
                        dtype=np.float32).reshape(4, 4)[:3, :3]
         w, h = Image.open(glob.glob(os.path.join(self.root_dir, 'train/rgb/*'))[0]).size
-        # w, h = int(w), int(h)
         self.K = torch.FloatTensor(K)
         self.HEIGHT = int(h)
         self.WIDTH = int(w)
@@ -267,32 +227,6 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
         num_rays = self.num_rays
 
         device = "cuda:0"
-
-        # if self.training:
-        #     if self.batch_over_images:
-        #         image_id = torch.randint(
-        #             0,
-        #             len(self.images),
-        #             size=(num_rays,),
-        #             device=self.images.device,
-        #         )
-        #     else:
-        #         image_id = [index]
-        #     x = torch.randint(
-        #         0, self.WIDTH, size=(num_rays,), device=self.images.device
-        #     )
-        #     y = torch.randint(
-        #         0, self.HEIGHT, size=(num_rays,), device=self.images.device
-        #     )
-        # else:
-        #     image_id = [index]
-        #     x, y = torch.meshgrid(
-        #         torch.arange(self.WIDTH, device=self.images.device),
-        #         torch.arange(self.HEIGHT, device=self.images.device),
-        #         indexing="xy",
-        #     )
-        #     x = x.flatten()
-        #     y = y.flatten()
 
         if self.training:
             if self.batch_over_images:

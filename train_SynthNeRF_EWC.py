@@ -374,9 +374,6 @@ if __name__ == "__main__":
 
                 step += 1
 
-
-# print("step == max_steps = {}/{}/{},   step > 0 = {}, args.task_curr == (args.task_number - 1) = {}".format(step == max_steps, step, max_steps, step > 0, args.task_curr == (args.task_number - 1)))
-# if step == max_steps and step > 0 and args.task_curr == (args.task_number - 1):
 # evaluation
 result_dir = f'results/SynthNeRF/EWC/{args.scene}_{args.rep_size}'
 os.makedirs(result_dir, exist_ok=True)
@@ -406,9 +403,6 @@ with torch.no_grad():
             # test options
             test_chunk_size=args.test_chunk_size,
         )
-        # mse = F.mse_loss(rgb, pixels)
-        # psnr = -10.0 * torch.log(mse) / np.log(10.0)
-        # psnrs.append(psnr.item())
         # compute ngp psnr
         psnrs.append(psnr_func(rgb.cpu(), pixels.cpu()))
 
@@ -427,6 +421,5 @@ with torch.no_grad():
 psnr_avg = sum(psnrs) / len(psnrs)
 ssim_avg = sum(ssims)/len(ssims)
 lpip_avg = sum(lpips)/len(lpips)
-# psnr_ngp_avg = sum(psnrs_ngp) / len(psnrs_ngp)
 print(f"evaluation: psnr_avg={psnr_avg}, ssim = {ssim_avg}, lpip = {lpip_avg}")
-# train_dataset.training = True
+

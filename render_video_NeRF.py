@@ -186,10 +186,6 @@ if __name__ == "__main__":
     test_dataset.K = test_dataset.K.to(device)
     test_dataset.task_ids = test_dataset.task_ids.to(device)
 
-
-
-# print("step == max_steps = {}/{}/{},   step > 0 = {}, args.task_curr == (args.task_number - 1) = {}".format(step == max_steps, step, max_steps, step > 0, args.task_curr == (args.task_number - 1)))
-# if step == max_steps and step > 0 and args.task_curr == (args.task_number - 1):
 # evaluation
 result_dir = f'results/WOT/NT_ER/{args.scene}_{args.rep_size}/video'
 os.makedirs(result_dir, exist_ok=True)
@@ -224,16 +220,6 @@ with torch.no_grad():
             # test options
             test_chunk_size=args.test_chunk_size,
         )
-        # mse = F.mse_loss(rgb, pixels)
-        # psnr = -10.0 * torch.log(mse) / np.log(10.0)
-        # psnrs.append(psnr.item())
-        # compute ngp psnr
 
         rgb_save = (rgb.cpu().numpy()*255).astype(np.uint8)
-        # rgb_video_writer.append_data(rgb_save)
-
         imageio.imsave(os.path.join(result_dir, '{}.png'.format(i)), rgb_save)
-
-        
-# rgb_video_writer.close()
-# depth_video_writer.close()

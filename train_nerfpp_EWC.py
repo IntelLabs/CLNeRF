@@ -395,9 +395,7 @@ with torch.no_grad():
             # test options
             test_chunk_size=args.test_chunk_size,
         )
-        # mse = F.mse_loss(rgb, pixels)
-        # psnr = -10.0 * torch.log(mse) / np.log(10.0)
-        # psnrs.append(psnr.item())
+
         # compute ngp psnr
         psnrs.append(psnr_func(rgb.cpu(), pixels.cpu()))
 
@@ -412,25 +410,8 @@ with torch.no_grad():
         lpips.append(lpip_func(torch.clip(rgb_pred*2-1, -1, 1),
                            torch.clip(rgb_gt*2-1, -1, 1)))
 
-        # psnr_ngp = psnr_func.compute()
-        # psnr_func.reset()
-        # psnrs_ngp.append(psnr_ngp.item())
-
-        # print("rgb.shape = {}, pixels.shape = {}".format(rgb.shape, pixels.shape))
-        # if i == 10:
-        #     break
-        # imageio.imwrite(
-        #     "acc_binary_test.png",
-        #     ((acc > 0).float().cpu().numpy() * 255).astype(np.uint8),
-        # )
-        # imageio.imwrite(
-        #     "rgb_test.png",
-        #     (rgb.cpu().numpy() * 255).astype(np.uint8),
-        # )
-        # break
 psnr_avg = sum(psnrs) / len(psnrs)
 ssim_avg = sum(ssims)/len(ssims)
 lpip_avg = sum(lpips)/len(lpips)
-# psnr_ngp_avg = sum(psnrs_ngp) / len(psnrs_ngp)
 print(f"evaluation: psnr_avg={psnr_avg}, ssim = {ssim_avg}, lpip = {lpip_avg}")
-# train_dataset.training = True
+

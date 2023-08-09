@@ -1,25 +1,6 @@
 import os
 import subprocess
 
-
-
-# $ DATASET_PATH=/path/to/dataset
-
-# $ colmap feature_extractor \
-#    --database_path $DATASET_PATH/database.db \
-#    --image_path $DATASET_PATH/images
-
-# $ colmap exhaustive_matcher \
-#    --database_path $DATASET_PATH/database.db
-
-# $ mkdir $DATASET_PATH/sparse
-
-# $ colmap mapper \
-#     --database_path $DATASET_PATH/database.db \
-#     --image_path $DATASET_PATH/images \
-#     --output_path $DATASET_PATH/sparse
-
-# $ mkdir $DATASET_PATH/dense
 def run_colmap(basedir, match_type):
     
     logfile_name = os.path.join(basedir, 'colmap_output.txt')
@@ -51,14 +32,6 @@ def run_colmap(basedir, match_type):
     if not os.path.exists(p):
         os.makedirs(p)
 
-    # mapper_args = [
-    #     'colmap', 'mapper', 
-    #         '--database_path', os.path.join(basedir, 'database.db'), 
-    #         '--image_path', os.path.join(basedir, 'images'),
-    #         '--output_path', os.path.join(basedir, 'sparse'),
-    #         '--Mapper.num_threads', '16',
-    #         '--Mapper.init_min_tri_angle', '4',
-    # ]
     mapper_args = [
         'colmap', 'mapper',
             '--database_path', os.path.join(basedir, 'database.db'),

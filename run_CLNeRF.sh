@@ -2,12 +2,12 @@
 
 # CLNeRF on WOT dataset
 rep=10
-# bash scripts/CLNeRF/WOT/breville.sh ${rep}
-# bash scripts/CLNeRF/WOT/community.sh ${rep}
-# bash scripts/CLNeRF/WOT/kitchen.sh ${rep}
-# bash scripts/CLNeRF/WOT/living_room.sh ${rep}
-# bash scripts/CLNeRF/WOT/spa.sh ${rep}
-# bash scripts/CLNeRF/WOT/street.sh ${rep}
+bash scripts/CLNeRF/WOT/breville.sh ${rep}
+bash scripts/CLNeRF/WOT/community.sh ${rep}
+bash scripts/CLNeRF/WOT/kitchen.sh ${rep}
+bash scripts/CLNeRF/WOT/living_room.sh ${rep}
+bash scripts/CLNeRF/WOT/spa.sh ${rep}
+bash scripts/CLNeRF/WOT/street.sh ${rep}
 bash scripts/CLNeRF/WOT/car.sh ${rep}
 bash scripts/CLNeRF/WOT/grill.sh ${rep}
 bash scripts/CLNeRF/WOT/mac.sh ${rep}

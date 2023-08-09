@@ -376,10 +376,7 @@ class VanillaNeRFRadianceFieldG(nn.Module):
 
 
     def query_opacity(self, x, embed_id, step_size):
-        # print("enter opacity query function")
         density = self.query_density(x, embed_id)
-        # if the density is small enough those two are the same.
-        # opacity = 1.0 - torch.exp(-density * step_size)
         opacity = density * step_size
         return opacity
 
@@ -485,10 +482,8 @@ class VanillaNeRFRadianceFieldA(nn.Module):
 
 
     def query_opacity(self, x, step_size):
-        # print("enter opacity query function")
         density = self.query_density(x)
         # if the density is small enough those two are the same.
-        # opacity = 1.0 - torch.exp(-density * step_size)
         opacity = density * step_size
         return opacity
 
