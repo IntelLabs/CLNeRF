@@ -1,4 +1,5 @@
-gdown --id 1iAE8iWtUokQ6waZYc9ysy2OFkXyptdso -O ../../dataset/WOT.zip
+# gdown --id 1iAE8iWtUokQ6waZYc9ysy2OFkXyptdso -O ../../dataset/WOT.zip
+wget -O ../../dataset/WOT.zip https://huggingface.co/datasets/zcai/WOT-WorldOverTime/resolve/main/WOT.zip 
 unzip ../../dataset/WOT.zip -d ../../dataset
 rm ../../dataset/WOT.zip
 
