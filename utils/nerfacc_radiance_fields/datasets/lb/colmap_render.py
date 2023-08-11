@@ -288,8 +288,8 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
         else:
             self.id_train_final = list(range(num_img))
         self.id_train_final.sort()
-        print("id_train_final = {}".format(self.id_train_final))
-        exit()
+        # print("id_train_final = {}".format(self.id_train_final))
+        # exit()
         self.images = torch.from_numpy(self.images[self.id_train_final]).to(
             torch.uint8)
         self.camtoworlds = torch.from_numpy(
