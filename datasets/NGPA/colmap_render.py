@@ -109,7 +109,7 @@ class ColmapDataset_NGPA_CLNerf_render(BaseDataset):
         w2c_mats = np.stack(w2c_mats, 0)
         poses = np.linalg.inv(w2c_mats)[
             perm, :3]  # (N_images, 3, 4) cam2world matrices
-
+        
         pts3d = read_points3d_binary(
             os.path.join(self.root_dir, 'sparse/0/points3D.bin'))
         pts3d = np.array([pts3d[k].xyz for k in pts3d])  # (N, 3)
@@ -163,10 +163,16 @@ class ColmapDataset_NGPA_CLNerf_render(BaseDataset):
                 x for i, x in enumerate(task_ids) if i in test_img_ids
             ]
 
+        # print("indices = {}".format([x for i, x in enumerate(perm) if i in test_img_ids]))
+        
+        # exit()
         self.img_paths = img_paths
         img_paths_with_id = list(enumerate(self.img_paths))
         sorted_filenames = sorted(img_paths_with_id, key=custom_sort_key)
         sorted_order = [index for index, _ in sorted_filenames]
+
+        # print("sorted_order = {}".format(sorted_order))
+        # exit()
 
         self.img_paths = [filename for _, filename in sorted_filenames]
         self.poses = self.poses[sorted_order]

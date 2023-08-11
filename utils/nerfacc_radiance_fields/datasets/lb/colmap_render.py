@@ -85,7 +85,10 @@ def _load_colmap(root_fp: str, subject_id: str, split: str, factor: int = 1):
 
     # Extract extrinsic matrices in world-to-camera format.
     imdata = read_images_binary(os.path.join(colmap_dir, 'images.bin'))
-
+    # img_names = [imdata[k].name for k in imdata]
+    # perm = np.argsort(img_names)
+    
+    
     w2c_mats = []
     bottom = np.array([[0, 0, 0, 1.]])
     for k in imdata:
@@ -98,6 +101,11 @@ def _load_colmap(root_fp: str, subject_id: str, split: str, factor: int = 1):
     # Convert extrinsics to camera-to-world.
     camtoworlds = np.linalg.inv(w2c_mats)
 
+    # # verify that the initial cam poses are correct
+    # for i in range(10):
+    #     print("camtoworlds = {}".format(camtoworlds[i]))
+    # print("camtoworlds.shape = {}".format(camtoworlds.shape))
+    # exit()
 
     image_names_ori = [imdata[k].name for k in imdata]
     # Previous Nerf results were generated with images sorted by filename,
@@ -148,8 +156,7 @@ def _load_colmap(root_fp: str, subject_id: str, split: str, factor: int = 1):
         "train": all_indices[train_img_ids],
     }
     indices = split_indices[split]
-
-
+    
     # center and rescale camera poses
     # center all cameras to AABB center
     camera_locs = camtoworlds[:, :3, -1]
@@ -182,7 +189,18 @@ def _load_colmap(root_fp: str, subject_id: str, split: str, factor: int = 1):
     images = images[indices]
     camtoworlds = camtoworlds[indices]
 
-    return images, camtoworlds, K, np.array(task_ids)[test_img_ids]
+    # sort according to image names
+    img_paths = [
+        x for i, x in enumerate(image_names_ori) if i in test_img_ids
+    ]
+    img_paths_with_id = list(enumerate(img_paths))
+    sorted_filenames = sorted(img_paths_with_id, key=custom_sort_key)
+    sorted_order = [index for index, _ in sorted_filenames]
+    # print("sorted_order = {}".format(sorted_order))
+    # exit()
+    # camtoworlds = camtoworlds[sorted_order]
+    
+    return images[sorted_order], camtoworlds[sorted_order], K, (np.array(task_ids)[test_img_ids])[sorted_order]
 
 
 class SubjectLoader_lb(torch.utils.data.Dataset):
@@ -270,7 +288,8 @@ class SubjectLoader_lb(torch.utils.data.Dataset):
         else:
             self.id_train_final = list(range(num_img))
         self.id_train_final.sort()
-
+        print("id_train_final = {}".format(self.id_train_final))
+        exit()
         self.images = torch.from_numpy(self.images[self.id_train_final]).to(
             torch.uint8)
         self.camtoworlds = torch.from_numpy(
