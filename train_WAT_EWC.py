@@ -20,8 +20,8 @@ import torch.utils.data
 import sys
 # sys.path.append('/mnt/beegfs/mixed-tier/work/zcai/WorkSpace/NeRF/nerfacc/examples')
 import tqdm
-from utils.nerfacc_radiance_fields.mlp import VanillaNeRFRadianceField
-from utils.nerfacc_radiance_fields.utils import render_image_ori, set_random_seed
+from utils.nerfacc_radiance_fields.mlp import VanillaNeRFRadianceFieldG
+from utils.nerfacc_radiance_fields.utils import render_image, set_random_seed
 
 # metrics
 from torchmetrics import (
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--aabb",
         type=lambda s: [float(item) for item in s.split(",")],
-        default="-4.0,-4.0,-4.0,4.0,4.0,4.0",
+        default="-1.5,-1.5,-1.5,1.5,1.5,1.5",
         help="delimited list input",
     )
     parser.add_argument(
@@ -107,6 +107,24 @@ if __name__ == "__main__":
         help="whether to use a small bounding box",
     )
     parser.add_argument(
+        "--dim_a",
+        type=int,
+        default=48,
+        help="dimension of appearance code",
+    )
+    parser.add_argument(
+        "--dim_g",
+        type=int,
+        default=16,
+        help="dimension of geometry code",
+    )
+    parser.add_argument(
+        "--vocab_size",
+        type=int,
+        default=10,
+        help="total number of tasks",
+    )
+    parser.add_argument(
         "--data_root",
         type=str,
         default='dataset/WAT',
@@ -139,9 +157,6 @@ if __name__ == "__main__":
         render_step_size = 1e-2
     else:
         contraction_type = ContractionType.AABB
-        if args.smallAABB:
-            args.aabb = [-1.5,-1.5,-1.5,1.5,1.5,1.5]
-
         scene_aabb = torch.tensor(args.aabb, dtype=torch.float32, device=device)
         near_plane = None
         far_plane = None
@@ -157,7 +172,7 @@ if __name__ == "__main__":
     # setup the radiance field we want to train.
     max_steps = args.max_steps
     grad_scaler = torch.cuda.amp.GradScaler(1)
-    radiance_field = VanillaNeRFRadianceField(net_width = args.dim).to(device)
+    radiance_field = VanillaNeRFRadianceFieldG(net_width = args.dim, vocab_size = args.vocab_size, dim_a = args.dim_a, dim_g = args.dim_g).to(device)
 
     id_rep = None
     for task_curr in range(args.task_number):
@@ -190,12 +205,14 @@ if __name__ == "__main__":
                 render_bkgd = data["color_bkgd"]
                 rays = data["rays"]
                 pixels = data["pixels"]
+                task_id = data['task_id']
 
                 # render
-                rgb, acc, depth, n_rendering_samples = render_image_ori(
+                rgb, acc, depth, n_rendering_samples = render_image(
                     radiance_field_old,
                     occupancy_grid,
                     rays,
+                    task_id,
                     scene_aabb,
                     # rendering options
                     near_plane=near_plane,
@@ -240,7 +257,9 @@ if __name__ == "__main__":
         train_dataset_kwargs = {}
         test_dataset_kwargs = {}
 
-        from utils.nerfacc_radiance_fields.datasets.lb.nerfpp import SubjectLoader_lb as SubjectLoader
+        # from datasets.lb.colmap import SubjectLoader_lb as SubjectLoader
+        from utils.nerfacc_radiance_fields.datasets.lb.colmap import SubjectLoader_lb as SubjectLoader
+
         data_root_fp = args.data_root
         target_sample_batch_size = 1 << 16
         grid_resolution = 128
@@ -261,6 +280,7 @@ if __name__ == "__main__":
         train_dataset.images = train_dataset.images.to(device)
         train_dataset.camtoworlds = train_dataset.camtoworlds.to(device)
         train_dataset.K = train_dataset.K.to(device)
+        train_dataset.task_ids = train_dataset.task_ids.to(device)
         id_rep = train_dataset.rep_buf.copy()
 
         test_dataset = SubjectLoader(
@@ -273,6 +293,7 @@ if __name__ == "__main__":
         test_dataset.images = test_dataset.images.to(device)
         test_dataset.camtoworlds = test_dataset.camtoworlds.to(device)
         test_dataset.K = test_dataset.K.to(device)
+        test_dataset.task_ids = test_dataset.task_ids.to(device)
 
         occupancy_grid = OccupancyGrid(
             roi_aabb=args.aabb,
@@ -295,20 +316,30 @@ if __name__ == "__main__":
                 render_bkgd = data["color_bkgd"]
                 rays = data["rays"]
                 pixels = data["pixels"]
+                task_id = data['task_id']
 
-                # update occupancy grid
+                # # update occupancy grid
+                # occupancy_grid.every_n_step(
+                #     step=step,
+                #     occ_eval_fn=lambda x: radiance_field.query_opacity(
+                #         x, render_step_size
+                #     ),
+                # )
+
                 occupancy_grid.every_n_step(
                     step=step,
                     occ_eval_fn=lambda x: radiance_field.query_opacity(
-                        x, render_step_size
+                        x, torch.randint(0, args.vocab_size, (x.shape[0], ), device = device), render_step_size
                     ),
                 )
 
+                # print("task_id = {}/{}/{}".format(task_id.min(), task_id.max(), task_id.numel()))
                 # render
-                rgb, acc, depth, n_rendering_samples = render_image_ori(
+                rgb, acc, depth, n_rendering_samples = render_image(
                     radiance_field,
                     occupancy_grid,
                     rays,
+                    task_id,
                     scene_aabb,
                     # rendering options
                     near_plane=near_plane,
@@ -362,14 +393,14 @@ if __name__ == "__main__":
 
                 step += 1
 
-
-# print("step == max_steps = {}/{}/{},   step > 0 = {}, args.task_curr == (args.task_number - 1) = {}".format(step == max_steps, step, max_steps, step > 0, args.task_curr == (args.task_number - 1)))
-# if step == max_steps and step > 0 and args.task_curr == (args.task_number - 1):
 # evaluation
-# result_dir = f'examples/results/nerfpp/EWC/{args.EWC_weight}/{args.scene}_{args.rep_size}'
-result_dir = f'results/nerfpp/EWC/{args.scene}_{args.rep_size}'
+result_dir = f'results/WAT/EWC/{args.scene}_{args.rep_size}'
 os.makedirs(result_dir, exist_ok=True)
 radiance_field.eval()
+
+# save the trained model
+out_dict = {'model': radiance_field, 'occupancy_grid': occupancy_grid}
+torch.save(out_dict, result_dir+'/model.torchSave')
 
 psnrs, ssims, lpips = [], [], []
 # psnrs_ngp = []
@@ -379,12 +410,14 @@ with torch.no_grad():
         render_bkgd = data["color_bkgd"]
         rays = data["rays"]
         pixels = data["pixels"]
+        task_id = data['task_id'].flatten()
 
         # rendering
-        rgb, acc, depth, _ = render_image_ori(
+        rgb, acc, depth, _ = render_image(
             radiance_field,
             occupancy_grid,
             rays,
+            task_id,
             scene_aabb,
             # rendering options
             near_plane=None,
@@ -395,7 +428,9 @@ with torch.no_grad():
             # test options
             test_chunk_size=args.test_chunk_size,
         )
-
+        # mse = F.mse_loss(rgb, pixels)
+        # psnr = -10.0 * torch.log(mse) / np.log(10.0)
+        # psnrs.append(psnr.item())
         # compute ngp psnr
         psnrs.append(psnr_func(rgb.cpu(), pixels.cpu()))
 

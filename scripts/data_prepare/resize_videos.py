@@ -59,5 +59,5 @@ def process_videos(input_directory_path, output_directory_path):
 
 
 # Usage:
-process_videos('/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/dataset/WOT/car', '/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/dataset/WOT/car_resized')
-process_videos('/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/dataset/WOT/grill', '/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/dataset/WOT/grill_resized')
+process_videos('/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/dataset/WAT/car', '/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/dataset/WAT/car_resized')
+process_videos('/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/dataset/WAT/grill', '/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/dataset/WAT/grill_resized')

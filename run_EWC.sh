@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# EWC on WOT dataset
+# EWC on WAT dataset
 rep=0
-bash scripts/EWC/WOT/nerf_baseline.sh breville ${rep} 5 dataset/WOT
-bash scripts/EWC/WOT/nerf_baseline.sh community ${rep} 10 dataset/WOT
-bash scripts/EWC/WOT/nerf_baseline.sh kitchen ${rep} 5 dataset/WOT
-bash scripts/EWC/WOT/nerf_baseline.sh living_room ${rep} 5 dataset/WOT
-bash scripts/EWC/WOT/nerf_baseline.sh spa ${rep} 5 dataset/WOT
-bash scripts/EWC/WOT/nerf_baseline.sh street ${rep} 5 dataset/WOT
+bash scripts/EWC/WAT/nerf_baseline.sh breville ${rep} 5 dataset/WAT
+bash scripts/EWC/WAT/nerf_baseline.sh community ${rep} 10 dataset/WAT
+bash scripts/EWC/WAT/nerf_baseline.sh kitchen ${rep} 5 dataset/WAT
+bash scripts/EWC/WAT/nerf_baseline.sh living_room ${rep} 5 dataset/WAT
+bash scripts/EWC/WAT/nerf_baseline.sh spa ${rep} 5 dataset/WAT
+bash scripts/EWC/WAT/nerf_baseline.sh street ${rep} 5 dataset/WAT
 
 # # # # EWC on Synth-NeRF dataset
 bash scripts/EWC/SynthNeRF/nerf_baseline.sh chair ${rep} 10 dataset/nerf_synthetic

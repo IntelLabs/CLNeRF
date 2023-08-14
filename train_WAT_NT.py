@@ -11,17 +11,11 @@ import imageio
 import numpy as np
 import torch
 import torch.nn.functional as F
-
-from copy import deepcopy
-from torch import nn
-from torch.autograd import Variable
-import torch.utils.data
+import tqdm
 
 import sys
-# sys.path.append('/mnt/beegfs/mixed-tier/work/zcai/WorkSpace/NeRF/nerfacc/examples')
-import tqdm
-from utils.nerfacc_radiance_fields.mlp import VanillaNeRFRadianceField
-from utils.nerfacc_radiance_fields.utils import render_image_ori, set_random_seed
+from utils.nerfacc_radiance_fields.mlp import VanillaNeRFRadianceFieldG
+from utils.nerfacc_radiance_fields.utils import render_image, set_random_seed
 
 # metrics
 from torchmetrics import (
@@ -33,11 +27,7 @@ from einops import rearrange
 
 from nerfacc import ContractionType, OccupancyGrid
 
-def variable(t: torch.Tensor, use_cuda=True, **kwargs):
-    if torch.cuda.is_available() and use_cuda:
-        t = t.cuda()
-    return Variable(t, **kwargs)
-
+# os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 
 if __name__ == "__main__":
 
@@ -60,7 +50,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--aabb",
         type=lambda s: [float(item) for item in s.split(",")],
-        default="-4.0,-4.0,-4.0,4.0,4.0,4.0",
+        default="-1.5,-1.5,-1.5,1.5,1.5,1.5",
         help="delimited list input",
     )
     parser.add_argument(
@@ -96,15 +86,29 @@ if __name__ == "__main__":
         default=256,
     )
     parser.add_argument(
-        "--EWC_weight",
-        type=float,
-        default=1e5,
-    )
-    parser.add_argument(
         "--smallAABB",
         type=int,
         default=0,
         help="whether to use a small bounding box",
+    )
+
+    parser.add_argument(
+        "--dim_a",
+        type=int,
+        default=48,
+        help="dimension of appearance code",
+    )
+    parser.add_argument(
+        "--dim_g",
+        type=int,
+        default=16,
+        help="dimension of geometry code",
+    )
+    parser.add_argument(
+        "--vocab_size",
+        type=int,
+        default=10,
+        help="total number of tasks",
     )
     parser.add_argument(
         "--data_root",
@@ -121,108 +125,26 @@ if __name__ == "__main__":
         os.remove("/home/zcai/.cache/torch_extensions/py39_cu117/nerfacc_cuda/lock")
     else:
         print("lock file not exists")
-
+    
     render_n_samples = 1024
     psnr_func = PeakSignalNoiseRatio(data_range=1)
     ssim_func = StructuralSimilarityIndexMeasure(data_range=1)
     lpip_func = LearnedPerceptualImagePatchSimilarity('vgg')
     for p in lpip_func.net.parameters():
         p.requires_grad = False
-    # setup the scene bounding box.
-    if args.unbounded:
-        print("Using unbounded rendering")
-        contraction_type = ContractionType.UN_BOUNDED_SPHERE
-        # contraction_type = ContractionType.UN_BOUNDED_TANH
-        scene_aabb = None
-        near_plane = 0.2
-        far_plane = 1e4
-        render_step_size = 1e-2
-    else:
-        contraction_type = ContractionType.AABB
-        if args.smallAABB:
-            args.aabb = [-1.5,-1.5,-1.5,1.5,1.5,1.5]
-
-        scene_aabb = torch.tensor(args.aabb, dtype=torch.float32, device=device)
-        near_plane = None
-        far_plane = None
-        render_step_size = (
-            (scene_aabb[3:] - scene_aabb[:3]).max()
-            * math.sqrt(3)
-            / render_n_samples
-        ).item()
-        # render_step_size = 1.5 * math.sqrt(3) / render_n_samples
-
-    print("rendering step size = {}".format(render_step_size))
 
     # setup the radiance field we want to train.
     max_steps = args.max_steps
+
     grad_scaler = torch.cuda.amp.GradScaler(1)
-    radiance_field = VanillaNeRFRadianceField(net_width = args.dim).to(device)
+    # radiance_field = VanillaNeRFRadianceField(net_width = args.dim).to(device)
+    radiance_field = VanillaNeRFRadianceFieldG(net_width = args.dim, vocab_size = args.vocab_size, dim_a = args.dim_a, dim_g = args.dim_g).to(device)
 
     id_rep = None
     for task_curr in range(args.task_number):
         args.task_curr = task_curr
 
         print("training on task {}".format(args.task_curr))
-        # only for test
-        if task_curr > 0:
-            print("compute fisher diagonal for EWC")
-            # copy old radiance field
-            # compute fisher matrix
-            radiance_field_old = deepcopy(radiance_field)
-            # params_old = {n: p for n, p in radiance_field.named_parameters() if p.requires_grad}
-            fisher_diag, param_old = {}, {}
-            
-            for n, p in deepcopy(radiance_field_old).named_parameters():
-                if p.requires_grad:
-                    p.data.zero_()
-                    fisher_diag[n] = variable(p.data)
-
-            for n, p in deepcopy(radiance_field_old).named_parameters():
-                if p.requires_grad:
-                    param_old[n] = variable(p.data)
-
-            radiance_field_old.eval()
-            steps_fisher = min(1000, 1920*1080*10//train_dataset.num_rays)
-            print("steps_fisher = {}".format(steps_fisher))
-            for i in range(steps_fisher):
-                data=train_dataset[i%len(train_dataset)]
-                render_bkgd = data["color_bkgd"]
-                rays = data["rays"]
-                pixels = data["pixels"]
-
-                # render
-                rgb, acc, depth, n_rendering_samples = render_image_ori(
-                    radiance_field_old,
-                    occupancy_grid,
-                    rays,
-                    scene_aabb,
-                    # rendering options
-                    near_plane=near_plane,
-                    far_plane=far_plane,
-                    render_step_size=render_step_size,
-                    render_bkgd=render_bkgd,
-                    cone_angle=args.cone_angle,
-                )
-                alive_ray_mask = acc.squeeze(-1) > 0
-
-                radiance_field_old.zero_grad()
-                # compute the diagonal of fisher information matrix
-                # in the case of regression, the gradient of l2 loss and the negative log-likelihood only differs by a constant factor, we need to rescale the EWC loss anyway, so use l2 directly here
-                loss = F.mse_loss(rgb[alive_ray_mask], pixels[alive_ray_mask])
-                loss.backward()
-
-                for n, p in radiance_field_old.named_parameters():
-                    if p.requires_grad:
-                        fisher_diag[n].data += (p.grad.data ** 2 / float(steps_fisher))
-                        # print("[is gradient zero?]: p.grad.data = {}".format(p.grad.data))
-
-                # if i > 100:
-                #     break
-
-            fisher_diag = {n: p for n, p in fisher_diag.items()}
-            # print("finished fisher_diag computation, fisher_diag = {}".format(fisher_diag))
-            # exit()
 
         optimizer = torch.optim.Adam(radiance_field.parameters(), lr=5e-4)
         scheduler = torch.optim.lr_scheduler.MultiStepLR(
@@ -240,7 +162,8 @@ if __name__ == "__main__":
         train_dataset_kwargs = {}
         test_dataset_kwargs = {}
 
-        from utils.nerfacc_radiance_fields.datasets.lb.nerfpp import SubjectLoader_lb as SubjectLoader
+        from utils.nerfacc_radiance_fields.datasets.lb.colmap import SubjectLoader_lb as SubjectLoader
+
         data_root_fp = args.data_root
         target_sample_batch_size = 1 << 16
         grid_resolution = 128
@@ -261,6 +184,8 @@ if __name__ == "__main__":
         train_dataset.images = train_dataset.images.to(device)
         train_dataset.camtoworlds = train_dataset.camtoworlds.to(device)
         train_dataset.K = train_dataset.K.to(device)
+        train_dataset.task_ids = train_dataset.task_ids.to(device)
+
         id_rep = train_dataset.rep_buf.copy()
 
         test_dataset = SubjectLoader(
@@ -273,7 +198,49 @@ if __name__ == "__main__":
         test_dataset.images = test_dataset.images.to(device)
         test_dataset.camtoworlds = test_dataset.camtoworlds.to(device)
         test_dataset.K = test_dataset.K.to(device)
+        test_dataset.task_ids = test_dataset.task_ids.to(device)
 
+        # setup the scene bounding box.
+        if args.unbounded:
+            print("Using unbounded rendering")
+            contraction_type = ContractionType.UN_BOUNDED_SPHERE
+            # contraction_type = ContractionType.UN_BOUNDED_TANH
+            scene_aabb = None
+            near_plane = 0.2
+            far_plane = 1e4
+            render_step_size = 1e-2
+        else:
+            contraction_type = ContractionType.AABB
+            # if args.smallAABB:
+            #     args.aabb = [-1.5,-1.5,-1.5,1.5,1.5,1.5]
+
+            scene_aabb = torch.tensor(args.aabb, dtype=torch.float32, device=device)
+            near_plane = None
+            far_plane = None
+            # # # auto aabb
+            # camera_locs = torch.cat(
+            #     [train_dataset.camtoworlds, test_dataset.camtoworlds]
+            # )[:, :3, -1]
+            # aabb_diff = (torch.cat(
+            #     [camera_locs.max(dim=0).values - camera_locs.min(dim=0).values]
+            # )).tolist()
+            # print("Using auto aabb_diff", aabb_diff, (torch.cat(
+            #     [camera_locs.min(dim=0).values, camera_locs.max(dim=0).values]
+            # )).tolist())
+
+            # render_step_size = (
+            #     max(aabb_diff)
+            #     * math.sqrt(3)
+            #     / render_n_samples
+            # )
+            # render_step_size = 1.5 * math.sqrt(3) / render_n_samples
+            render_step_size = (
+                (scene_aabb[3:] - scene_aabb[:3]).max()
+                * math.sqrt(3)
+                / render_n_samples
+            ).item()
+        
+        print("rendering step size = {}".format(render_step_size))
         occupancy_grid = OccupancyGrid(
             roi_aabb=args.aabb,
             resolution=grid_resolution,
@@ -295,20 +262,21 @@ if __name__ == "__main__":
                 render_bkgd = data["color_bkgd"]
                 rays = data["rays"]
                 pixels = data["pixels"]
+                task_id = data['task_id']
 
-                # update occupancy grid
                 occupancy_grid.every_n_step(
                     step=step,
                     occ_eval_fn=lambda x: radiance_field.query_opacity(
-                        x, render_step_size
+                        x, torch.randint(0, args.vocab_size, (x.shape[0], ), device = device), render_step_size
                     ),
                 )
 
                 # render
-                rgb, acc, depth, n_rendering_samples = render_image_ori(
+                rgb, acc, depth, n_rendering_samples = render_image(
                     radiance_field,
                     occupancy_grid,
                     rays,
+                    task_id,
                     scene_aabb,
                     # rendering options
                     near_plane=near_plane,
@@ -330,15 +298,8 @@ if __name__ == "__main__":
                 alive_ray_mask = acc.squeeze(-1) > 0
 
                 # compute loss
-                EWC_loss = 0
-                if task_curr > 0:
-                    for n, p in radiance_field.named_parameters():
-                        if p.requires_grad:
-                            EWC_loss += (fisher_diag[n] * (p-param_old[n]) ** 2).sum()
+                loss = F.smooth_l1_loss(rgb[alive_ray_mask], pixels[alive_ray_mask])
 
-                loss = F.smooth_l1_loss(rgb[alive_ray_mask], pixels[alive_ray_mask]) + args.EWC_weight * EWC_loss
-                # print("EWC_loss = {}".format(EWC_loss))
-                
                 optimizer.zero_grad()
                 # do not unscale it because we are using Adam.
                 grad_scaler.scale(loss).backward()
@@ -353,7 +314,6 @@ if __name__ == "__main__":
                         f"loss={loss:.5f} | "
                         f"alive_ray_mask={alive_ray_mask.long().sum():d} | "
                         f"n_rendering_samples={n_rendering_samples:d} | num_rays={len(pixels):d} |"
-                        f"EWC_loss={EWC_loss:.15f} |"
                     )
                 
                 if step == max_steps:
@@ -363,13 +323,18 @@ if __name__ == "__main__":
                 step += 1
 
 
+
+
 # print("step == max_steps = {}/{}/{},   step > 0 = {}, args.task_curr == (args.task_number - 1) = {}".format(step == max_steps, step, max_steps, step > 0, args.task_curr == (args.task_number - 1)))
 # if step == max_steps and step > 0 and args.task_curr == (args.task_number - 1):
 # evaluation
-# result_dir = f'examples/results/nerfpp/EWC/{args.EWC_weight}/{args.scene}_{args.rep_size}'
-result_dir = f'results/nerfpp/EWC/{args.scene}_{args.rep_size}'
+result_dir = f'results/WAT/NT_ER/{args.scene}_{args.rep_size}'
 os.makedirs(result_dir, exist_ok=True)
 radiance_field.eval()
+
+# save the trained model
+out_dict = {'model': radiance_field, 'occupancy_grid': occupancy_grid}
+torch.save(out_dict, result_dir+'/model.torchSave')
 
 psnrs, ssims, lpips = [], [], []
 # psnrs_ngp = []
@@ -379,12 +344,16 @@ with torch.no_grad():
         render_bkgd = data["color_bkgd"]
         rays = data["rays"]
         pixels = data["pixels"]
+        task_id = data['task_id'].flatten()
+
+        # print("data = {}, render_bkgd = {}, rays = {}, pixels = {}, task_id = {}".format(data, render_bkgd, rays, pixels, task_id))
 
         # rendering
-        rgb, acc, depth, _ = render_image_ori(
+        rgb, acc, depth, _ = render_image(
             radiance_field,
             occupancy_grid,
             rays,
+            task_id,
             scene_aabb,
             # rendering options
             near_plane=None,
@@ -395,7 +364,9 @@ with torch.no_grad():
             # test options
             test_chunk_size=args.test_chunk_size,
         )
-
+        # mse = F.mse_loss(rgb, pixels)
+        # psnr = -10.0 * torch.log(mse) / np.log(10.0)
+        # psnrs.append(psnr.item())
         # compute ngp psnr
         psnrs.append(psnr_func(rgb.cpu(), pixels.cpu()))
 
@@ -409,6 +380,7 @@ with torch.no_grad():
         # lpips
         lpips.append(lpip_func(torch.clip(rgb_pred*2-1, -1, 1),
                            torch.clip(rgb_gt*2-1, -1, 1)))
+
 
 psnr_avg = sum(psnrs) / len(psnrs)
 ssim_avg = sum(ssims)/len(ssims)

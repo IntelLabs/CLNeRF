@@ -39,6 +39,6 @@ pip install torchmetrics
 pip install torchmetrics[image]
 pip install -U 'tensorboardX'
 
-# the followings are for creating WOT dataset for your custom scenes, can ignore if you dont want them
+# the followings are for creating WAT dataset for your custom scenes, can ignore if you dont want them
 pip install scikit-image==0.19.3
 conda install -c conda-forge colmap

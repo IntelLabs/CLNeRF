@@ -113,7 +113,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--data_root",
         type=str,
-        default='dataset/WOT',
+        default='dataset/WAT',
         help="total number of tasks",
     )
     parser.add_argument(
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     grad_scaler = torch.cuda.amp.GradScaler(1)
     
     # just read out the model 
-    model_dir = f'results/WOT/EWC/{args.scene}_{args.rep_size}'
+    model_dir = f'results/WAT/EWC/{args.scene}_{args.rep_size}'
     out_dict_read = torch.load(model_dir+'/model.torchSave')
     radiance_field = out_dict_read['model'].to(device).eval()
     occupancy_grid = out_dict_read['occupancy_grid'].to(device)
@@ -188,7 +188,7 @@ if __name__ == "__main__":
 
 
 # evaluation
-result_dir = f'results/WOT/EWC/{args.scene}_{args.rep_size}/video'
+result_dir = f'results/WAT/EWC/{args.scene}_{args.rep_size}/video'
 os.makedirs(result_dir, exist_ok=True)
 
 
