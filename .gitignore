@@ -11,6 +11,7 @@ ckpts
 ckpts/
 
 scripts/data_prepare/job_prepare_WOT.sh
+scripts/data_prepare/job_prepare_WAT.sh
 
 job_run_CLNeRF.sh
 
