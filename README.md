@@ -1,7 +1,7 @@
 # CLNeRF
 Official implementation of ICCV 2023 paper 'CLNeRF: Continual Learning Meets NeRF' 
 
-[[Video](https://youtu.be/QDPSpKIFlG0)]  [Web Demo (coming soon)]
+[Paper (coming soon)] [[Video](https://youtu.be/QDPSpKIFlG0)]  [Web Demo (coming soon)]
 
 ![Example Image](https://github.com/ZhipengCai/CLNeRF/blob/main/demo/teaser.png)
 
