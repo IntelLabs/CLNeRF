@@ -249,4 +249,4 @@ if __name__ == '__main__':
                         num_sanity_val_steps=-1 if hparams.val_only else 0,
                         precision=16)
 
-    trainer.fit(system, ckpt_path=hparams.ckpt_path)
+    trainer.validate(system, ckpt_path=hparams.ckpt_path)
