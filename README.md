@@ -1,5 +1,7 @@
 # CLNeRF
-Official implementation of ICCV 2023 paper 'CLNeRF: Continual Learning Meets NeRF' (video demo: https://youtu.be/QDPSpKIFlG0)
+Official implementation of ICCV 2023 paper 'CLNeRF: Continual Learning Meets NeRF' 
+
+[video demo](https://youtu.be/QDPSpKIFlG0)  Live Demo (coming soon)
 
 ![Example Image](https://github.com/ZhipengCai/CLNeRF/blob/main/demo/teaser.png)
 
@@ -7,7 +9,7 @@ We study the problem of continual learning in the context of NeRFs. We propose a
 
 To facilitate future research on continual NeRF, we provide the code to run different continual learning methods on different NeRF datasets (including WAT).
 
-Please consider giving us a star or cite our paper if you find it useful.
+Please give us a star or cite our paper if you find it useful.
 
 # Contact
 Please contact Zhipeng Cai (homepage: https://zhipengcai.github.io/, email: czptc2h@gmail.com) if you have questions, comments or want to collaborate on this repository to make it better.
