@@ -1,7 +1,7 @@
 # CLNeRF
 Official implementation of ICCV 2023 paper 'CLNeRF: Continual Learning Meets NeRF' 
 
-[Paper (coming soon)] [[Video](https://youtu.be/QDPSpKIFlG0)]  [Web Demo (coming soon)]
+[Paper (coming soon)] [[Video](https://youtu.be/QDPSpKIFlG0)] [[Dataset](https://huggingface.co/datasets/IntelLabs/WAT-WorldAcrossTime)]  [Web Demo (coming soon)]
 
 ![Example Image](https://github.com/ZhipengCai/CLNeRF/blob/main/demo/teaser.png)
 
@@ -62,3 +62,6 @@ scale=8.0 # change to the right scale according to the corresponding training sc
 ckpt_path=/export/work/zcai/WorkSpace/CLNeRF/CLNeRF/ckpts/NGPGv2_CL/colmap_ngpa_CLNerf/${scene}_10/epoch=19-v4.ckpt # change to your ckpt path
 bash scripts/CLNeRF/WAT/render_video.sh $task_number $task_curr $scene $ckpt_path $rep $scale $render_fname
 ```
+# License
+
+This repository is under the Apache 2.0 License, it is free for non-commercial use. Please contact Zhipeng for other use cases.
