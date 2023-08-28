@@ -1,5 +1,5 @@
 # CLNeRF
-Official implementation of ICCV 2023 paper 'CLNeRF: Continual Learning Meets NeRF' 
+Official implementation 'CLNeRF: Continual Learning Meets NeRF' (accepted to ICCV'23)
 
 [Paper (coming soon)] [[Video](https://youtu.be/QDPSpKIFlG0)] [[Dataset](https://huggingface.co/datasets/IntelLabs/WAT-WorldAcrossTime)]  [Web Demo (coming soon)]
 
@@ -13,6 +13,8 @@ Please give us a star or cite our paper if you find it useful.
 
 # Contact
 Please contact Zhipeng Cai (homepage: https://zhipengcai.github.io/, email: czptc2h@gmail.com) if you have questions, comments or want to collaborate on this repository to make it better.
+
+We are actively looking for good research interns, contact Zhipeng if you are interested (multiple bases are possible, e.g., US, Munich, China).
 
 ```bash
 @inproceedings{iccv23clnerf,
