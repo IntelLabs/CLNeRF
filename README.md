@@ -1,5 +1,5 @@
 # CLNeRF
-Official implementation 'CLNeRF: Continual Learning Meets NeRF' (accepted to ICCV'23)
+Official implementation of 'CLNeRF: Continual Learning Meets NeRF' (accepted to ICCV'23)
 
 [[Paper](https://arxiv.org/abs/2308.14816)] [[Video](https://youtu.be/nLRt6OoDGq0)] [[Dataset](https://huggingface.co/datasets/IntelLabs/WAT-WorldAcrossTime)]  [Web Demo (coming soon)]
 
