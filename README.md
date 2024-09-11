@@ -36,6 +36,17 @@ booktitle={ICCV},
 * Clone this repo and submodules (pycolmap): `git clone --recurse-submodules https://github.com/IntelLabs/CLNeRF.git`
 * simply run the code in `setup_env.sh` line by line (to avoid failure in specific line so that your own environment is damaged)
 
+### Docker (optional)
+First make sure you have [installed Docker](https://docs.docker.com/engine/install/), and cloned the repository and it's your current working directory.
+```bash
+git clone --recursive https://github.com/IntelLabs/CLNeRF.git
+cd CLNeRF
+docker pull joaquingajardo/clnerf:latest
+docker run -d --name CLNeRF --gpus=all --shm-size=24g -w /workspace/CLNeRF -v ${PWD}:/workspace/CLNeRF -t joaquingajardo/clnerf:latest
+docker exec -it CLNeRF bash
+# Optionally in vscode you can attach to the container just created for easier debugging and developing
+```
+
 ## Dataset prepare (Naming follows Fig.4 of the main paper, currently support WAT, SynthNeRF and NeRF++)
 
 ```bash
