@@ -13,10 +13,10 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy required files and folders
-COPY setup_env.sh .
+COPY setup_env_docker.sh .
 COPY install_cuda_module.sh .
 COPY models models/
-RUN dos2unix setup_env.sh && \
+RUN dos2unix setup_env_docker.sh && \
     dos2unix install_cuda_module.sh
 
 # Install miniconda
@@ -28,11 +28,11 @@ ENV PATH=/opt/miniconda3/bin:$PATH
 RUN conda init bash 
 
 # Install required packages
-RUN bash setup_env.sh && \
+RUN bash setup_env_docker.sh && \
     echo "conda activate CLNeRF" >> ~/.bashrc
 
 # Clean up
-RUN rm setup_env.sh && \
+RUN rm setup_env_docker.sh && \
     rm install_cuda_module.sh && \
     rm -rf models
 
